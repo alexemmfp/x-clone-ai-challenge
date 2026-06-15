@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TwitterClone.Api/TwitterClone.Api.csproj" />
+    <Project Path="src/TwitterClone.Application/TwitterClone.Application.csproj" />
+    <Project Path="src/TwitterClone.Domain/TwitterClone.Domain.csproj" />
+    <Project Path="src/TwitterClone.Infrastructure/TwitterClone.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TwitterClone.Application.Tests/TwitterClone.Application.Tests.csproj" />
+    <Project Path="tests/TwitterClone.Architecture.Tests/TwitterClone.Architecture.Tests.csproj" />
+    <Project Path="tests/TwitterClone.Domain.Tests/TwitterClone.Domain.Tests.csproj" />
+    <Project Path="tests/TwitterClone.Integration.Tests/TwitterClone.Integration.Tests.csproj" />
+  </Folder>
+</Solution>
