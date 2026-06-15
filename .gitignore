@@ -1,0 +1,38 @@
+# --- Secrets / local ---
+.env
+*.env
+!.env.example
+.logs/
+
+# --- Challenge brief (do not publish The Flock's document) ---
+*.docx
+
+# --- .NET ---
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+TestResults/
+coverage*.xml
+coverage*.json
+*.trx
+
+# --- Node / Vue ---
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+playwright-report/
+test-results/
+coverage/
+
+# --- IDE / OS ---
+.vs/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+.DS_Store
+Thumbs.db

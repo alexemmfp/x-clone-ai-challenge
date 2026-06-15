@@ -1,0 +1,8 @@
+# Normalize line endings in the repo to LF (keeps check.sh runnable on Linux/CI).
+* text=auto eol=lf
+*.sh  text eol=lf
+*.ps1 text eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.docx binary

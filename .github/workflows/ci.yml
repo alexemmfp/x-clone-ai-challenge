@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend deps
+        if: ${{ hashFiles('frontend/package-lock.json') != '' }}
+        working-directory: frontend
+        run: npm ci
+
+      # Runs build + tests + coverage(>=85%) + lint + typecheck.
+      # Integration tests use Testcontainers; Docker is available on ubuntu runners.
+      - name: Run check
+        run: bash scripts/check.sh

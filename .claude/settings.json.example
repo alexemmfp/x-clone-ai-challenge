@@ -1,0 +1,31 @@
+{
+  "$comment": "OPT-IN agent guardrails. Review, then rename to settings.json to activate. Allows the dev toolchain; protects secrets and blocks push/destructive ops.",
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet run:*)",
+      "Bash(dotnet format:*)",
+      "Bash(dotnet ef:*)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet new:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(pwsh scripts/check.ps1:*)",
+      "Bash(bash scripts/check.sh:*)",
+      "Bash(docker compose:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git log:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./**/.env)",
+      "Bash(git push:*)",
+      "Bash(rm -rf:*)"
+    ]
+  }
+}
