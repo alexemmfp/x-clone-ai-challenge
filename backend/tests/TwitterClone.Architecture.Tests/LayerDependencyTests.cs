@@ -13,22 +13,17 @@ public class LayerDependencyTests
 
     private static Assembly LoadAssemblyByName(string name)
     {
-        var loaded = AppDomain.CurrentDomain.GetAssemblies()
-            .FirstOrDefault(a => a.GetName().Name == name);
-        if (loaded is not null)
-        {
-            return loaded;
-        }
-
-        var dir = Path.GetDirectoryName(typeof(LayerDependencyTests).Assembly.Location)!;
-        var path = Path.Combine(dir, $"{name}.dll");
-        return Assembly.LoadFrom(path);
+        return AppDomain.CurrentDomain.GetAssemblies()
+            .FirstOrDefault(a => a.GetName().Name == name)
+            ?? Assembly.Load(name);
     }
 
     [Fact]
     public void Domain_Should_Not_Reference_Any_Other_Project()
     {
         var assembly = LoadAssemblyByName(DomainNs);
+        // Domain is empty at this stage — entities arrive in Task 5.
+        // NotBeEmpty guard will be added here once Domain has types.
         var result = Types.InAssembly(assembly)
             .ShouldNot()
             .HaveDependencyOnAny(ApplicationNs, InfrastructureNs, ApiNs)
@@ -42,6 +37,7 @@ public class LayerDependencyTests
     public void Application_Should_Not_Reference_Infrastructure_Or_Api()
     {
         var assembly = LoadAssemblyByName(ApplicationNs);
+        assembly.GetTypes().Should().NotBeEmpty(because: $"{assembly.GetName().Name} must have at least one type");
         var result = Types.InAssembly(assembly)
             .ShouldNot()
             .HaveDependencyOnAny(InfrastructureNs, ApiNs)
@@ -55,9 +51,10 @@ public class LayerDependencyTests
     public void Infrastructure_Should_Not_Reference_Api()
     {
         var assembly = LoadAssemblyByName(InfrastructureNs);
+        assembly.GetTypes().Should().NotBeEmpty(because: $"{assembly.GetName().Name} must have at least one type");
         var result = Types.InAssembly(assembly)
             .ShouldNot()
-            .HaveDependencyOn(ApiNs)
+            .HaveDependencyOnAny(ApiNs)
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue(
