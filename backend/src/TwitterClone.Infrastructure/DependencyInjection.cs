@@ -22,6 +22,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<ITweetRepository, TweetRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         var workFactor = int.Parse(configuration["Bcrypt:WorkFactor"] ?? "11", System.Globalization.CultureInfo.InvariantCulture);
