@@ -1,5 +1,13 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using TwitterClone.Application.Interfaces;
+using TwitterClone.Infrastructure.Auth;
+using TwitterClone.Infrastructure.Persistence;
+using TwitterClone.Infrastructure.Persistence.Repositories;
 
 namespace TwitterClone.Infrastructure;
 
@@ -9,6 +17,38 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddDbContext<AppDbContext>(opts =>
+            opts.UseNpgsql(configuration.GetConnectionString("Default")));
+
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        var workFactor = int.Parse(configuration["Bcrypt:WorkFactor"] ?? "11", System.Globalization.CultureInfo.InvariantCulture);
+        services.AddSingleton<IPasswordHasher>(new BcryptPasswordHasher(workFactor));
+        services.AddSingleton<IJwtService, JwtService>();
+        services.AddSingleton<IRefreshTokenConfig, RefreshTokenConfig>();
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(opts =>
+            {
+                var key = configuration["Jwt:SigningKey"]
+                    ?? throw new InvalidOperationException("Jwt:SigningKey missing");
+
+                opts.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    ValidAudience = configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                };
+            });
+
+        services.AddAuthorization();
+
         return services;
     }
 }
