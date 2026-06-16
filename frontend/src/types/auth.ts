@@ -1,14 +1,12 @@
 export interface AuthResult {
   accessToken: string
-  user: UserProfile
+  userId: string
+  username: string
 }
 
 export interface UserProfile {
   id: string
   username: string
-  email: string
-  bio: string | null
-  avatarUrl: string | null
 }
 
 export interface LoginRequest {
