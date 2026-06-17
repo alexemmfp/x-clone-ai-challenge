@@ -29,4 +29,13 @@ internal sealed class UserRepository(AppDbContext db) : IUserRepository
 
     public async Task AddAsync(User user, CancellationToken ct = default) =>
         await db.Users.AddAsync(user, ct);
+
+    public async Task<IReadOnlyList<User>> SearchAsync(string term, int limit, CancellationToken ct = default)
+    {
+        var lower = term.ToLowerInvariant();
+        return await db.Users
+            .Where(u => EF.Functions.ILike(u.Username, $"%{lower}%") || u.Email.Contains(lower))
+            .Take(limit)
+            .ToListAsync(ct);
+    }
 }
