@@ -6,6 +6,8 @@ export interface Tweet {
   parentId: string | null
   imageUrl: string | null
   createdAt: string
+  likeCount: number
+  likedByViewer: boolean
 }
 
 export interface CreateTweetRequest {

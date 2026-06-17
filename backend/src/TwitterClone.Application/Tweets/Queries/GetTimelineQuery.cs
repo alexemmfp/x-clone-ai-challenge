@@ -5,7 +5,7 @@ namespace TwitterClone.Application.Tweets.Queries;
 
 public sealed record GetTimelineQuery(Guid UserId, int Page = 1, int PageSize = 20);
 
-public sealed class GetTimelineHandler(ITweetRepository tweets, IUserRepository users)
+public sealed class GetTimelineHandler(ITweetRepository tweets, IUserRepository users, ILikeRepository likes)
 {
     public async Task<IReadOnlyList<TweetDto>> HandleAsync(GetTimelineQuery query, CancellationToken ct = default)
     {
@@ -22,15 +22,23 @@ public sealed class GetTimelineHandler(ITweetRepository tweets, IUserRepository 
             }
         }
 
-        return timeline
-            .Select(t => new TweetDto(
+        var result = new List<TweetDto>();
+        foreach (var t in timeline)
+        {
+            var likeCount = await likes.CountAsync(t.Id, ct);
+            var likedByViewer = await likes.GetAsync(query.UserId, t.Id, ct) is not null;
+            result.Add(new TweetDto(
                 t.Id,
                 t.AuthorId,
                 authorMap.TryGetValue(t.AuthorId, out var u) ? u : "unknown",
                 t.Text,
                 t.ParentId,
                 t.ImageUrl,
-                t.CreatedAt))
-            .ToList();
+                t.CreatedAt,
+                likeCount,
+                likedByViewer));
+        }
+
+        return result;
     }
 }

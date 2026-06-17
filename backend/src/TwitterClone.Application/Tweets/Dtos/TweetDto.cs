@@ -7,4 +7,6 @@ public sealed record TweetDto(
     string Text,
     Guid? ParentId,
     string? ImageUrl,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    int LikeCount = 0,
+    bool LikedByViewer = false);

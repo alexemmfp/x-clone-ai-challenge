@@ -45,20 +45,32 @@
       <article
         v-for="tweet in tweets.timeline"
         :key="tweet.id"
-        class="bg-white rounded-2xl shadow p-4 space-y-1"
+        class="bg-white rounded-2xl shadow p-4 space-y-2"
       >
         <div class="flex items-center justify-between">
-          <span class="font-semibold text-sm text-gray-900">@{{ tweet.authorUsername }}</span>
+          <RouterLink
+            :to="`/profile/${tweet.authorUsername}`"
+            class="font-semibold text-sm text-gray-900 hover:underline"
+          >@{{ tweet.authorUsername }}</RouterLink>
           <span class="text-xs text-gray-400">{{ formatDate(tweet.createdAt) }}</span>
         </div>
         <p class="text-gray-800 text-sm whitespace-pre-wrap">{{ tweet.text }}</p>
-        <button
-          v-if="tweet.authorId === auth.user?.id"
-          class="text-xs text-red-400 hover:text-red-600 transition"
-          @click="tweets.deleteTweet(tweet.id)"
-        >
-          Delete
-        </button>
+        <div class="flex items-center gap-4">
+          <button
+            class="text-xs flex items-center gap-1 transition"
+            :class="tweet.likedByViewer ? 'text-rose-500' : 'text-gray-400 hover:text-rose-400'"
+            @click="tweets.toggleLike(tweet)"
+          >
+            ♥ {{ tweet.likeCount }}
+          </button>
+          <button
+            v-if="tweet.authorId === auth.user?.id"
+            class="text-xs text-red-400 hover:text-red-600 transition ml-auto"
+            @click="tweets.deleteTweet(tweet.id)"
+          >
+            Delete
+          </button>
+        </div>
       </article>
 
       <div v-if="tweets.hasMore && tweets.timeline.length > 0" class="text-center">
@@ -76,6 +88,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useTweetStore } from '@/stores/useTweetStore'
 

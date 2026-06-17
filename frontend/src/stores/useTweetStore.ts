@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { tweetsApi } from '@/api/tweets'
+import { socialApi } from '@/api/social'
 import type { Tweet } from '@/types/tweet'
 
 export const useTweetStore = defineStore('tweets', () => {
@@ -39,5 +40,17 @@ export const useTweetStore = defineStore('tweets', () => {
     timeline.value = timeline.value.filter((t) => t.id !== id)
   }
 
-  return { timeline, loading, hasMore, loadTimeline, createTweet, deleteTweet }
+  async function toggleLike(tweet: Tweet) {
+    if (tweet.likedByViewer) {
+      await socialApi.unlikeTweet(tweet.id)
+      tweet.likeCount--
+      tweet.likedByViewer = false
+    } else {
+      await socialApi.likeTweet(tweet.id)
+      tweet.likeCount++
+      tweet.likedByViewer = true
+    }
+  }
+
+  return { timeline, loading, hasMore, loadTimeline, createTweet, deleteTweet, toggleLike }
 })
