@@ -16,7 +16,25 @@ Full-stack Twitter/X clone. .NET 10 Clean Architecture backend + Vue 3 + TypeScr
 
 ---
 
-## Quick Start
+## Quick Start (Docker — one command)
+
+> Requires Docker Desktop running. Boots Postgres + API + frontend together.
+
+```bash
+git clone <repo-url> twitter_clone
+cd twitter_clone
+docker compose up -d --build
+```
+
+- Frontend: **http://localhost** (port 80)
+- API: **http://localhost:8080** — health: `GET /health`
+- Postgres: **localhost:5433**
+
+The API runs migrations and seeds demo data automatically on first start. Log in with `alice@example.com` / `Seed1234!`.
+
+---
+
+## Quick Start (local dev)
 
 All commands are copy-pasteable. Run them from the repo root unless noted.
 
@@ -116,7 +134,7 @@ Ten demo accounts are pre-loaded. Password for all: **`Seed1234!`**
 ## Running the test suite
 
 ```powershell
-# Full suite (build + tests + coverage ≥ 85% + lint + typecheck)
+# Full suite (build + tests + lint + typecheck)
 pwsh scripts/check.ps1
 
 # Backend only
@@ -128,17 +146,23 @@ pwsh scripts/check.ps1 -Frontend
 
 Detailed logs are written to `.logs/`. The console shows a summary only.
 
+**Coverage** (≥85% target) is enforced on Linux/CI via `scripts/check.sh` (used by GitHub Actions). On Windows, Smart App Control can block DLL instrumentation — run `docker compose run --rm backend dotnet test /p:CollectCoverage=true /p:Threshold=85` to measure in a Linux container.
+
+**80 backend tests**: 10 domain · 50 application · 3 architecture · 17 integration.
+
 ---
 
 ## Implemented features
 
 - **Auth** — register, login, logout, JWT access token + silent refresh via httpOnly cookie
 - **Timeline** — chronological feed of tweets from followed users + own tweets
-- **Tweets** — create (280 chars) and delete own tweets
+- **Real-time timeline** — SignalR hub pushes new tweets to connected clients instantly
+- **Tweets** — create (280 chars), delete own tweets, reply threads (parentId)
 - **Follow / Unfollow** — follow or unfollow any user
-- **Likes** — like and unlike tweets
-- **Profile** — view any user's profile, their tweet count, follower/following counts; edit own bio and display name
+- **Likes** — like and unlike tweets with live counters
+- **Profile** — view any user's profile, follower/following counts; edit own bio
 - **User search** — search users by username or email
+- **Docker** — `docker compose up -d --build` boots the full stack (Postgres + API + web)
 
 ---
 
@@ -151,10 +175,13 @@ Clean Architecture: `Domain → Application → Infrastructure + Api`. Dependenc
 ## Tech decisions
 
 - **Own auth** — JWT access token (Bearer, 15 min) + refresh token in httpOnly cookie (7 days). No third-party auth provider. Passwords hashed with BCrypt (work factor 11).
+- **SHA256 for refresh token hashing** — BCrypt is non-deterministic (random salt per call), so stored hashes can't be looked up by value. Refresh tokens are already high-entropy random strings; SHA256 determinism enables exact-match DB lookups without BCrypt's work factor overhead.
 - **Clean Architecture** — use-case classes in `Application`, domain rules in `Domain`, EF Core + repos in `Infrastructure`. Enforced by NetArchTest.
 - **EF Core + Testcontainers** — integration tests spin up a real PostgreSQL container so tests cover actual SQL and migrations, not mocks.
 - **Vue 3 + Pinia + Axios interceptor** — the Axios instance auto-refreshes the access token on 401 before retrying the original request; the user never sees a login redirect on token expiry.
+- **SignalR real-time** — `TimelineHub` broadcasts `TweetCreated` events to all connected clients. Interface (`ITimelineNotifier`) defined in Application; SignalR implementation in Infrastructure (dependency rule preserved).
 - **Tailwind mobile-first** — all views are responsive; the layout collapses to a single column on small screens.
+- **AI-assisted development** — Claude Code (Sonnet 4.6) wrote ~85% of code in pair-programming mode: the human wrote the CLAUDE.md constraints, reviewed diffs, and made architectural decisions; AI implemented handlers, tests, frontend components, and DevOps. All commits include `Co-Authored-By: Claude Sonnet 4.6`.
 
 ---
 

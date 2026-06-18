@@ -40,7 +40,19 @@ Use cases are plain handler classes in Application (e.g. `CreateTweetHandler`) w
 - **Architecture.Tests**: NetArchTest boundary rules.
 - Frontend: Vitest + @vue/test-utils for login/create-tweet/follow flows; Playwright for the browser E2E.
 
-## Trade-offs / known limits (keep updated for the README)
-- Fan-out-on-read timeline: simple and correct, fine at seed scale; would need caching/materialization at large scale.
-- Single-image upload only; stored on local volume (or S3-compatible) — documented in README.
-- _add as they appear._
+## Real-time (SignalR)
+`TimelineHub` in Infrastructure broadcasts `TweetCreated` events. `CreateTweetHandler` calls `ITimelineNotifier` (Application interface) after persisting a tweet; the Infrastructure implementation uses `IHubContext<TimelineHub>` to push the `TweetDto` to all connected clients. Frontend subscribes in `useTimelineHub` composable and prepends tweets to the timeline without polling.
+
+CORS must include `.AllowCredentials()` for SignalR WebSocket handshake; required origins are read from `Cors:AllowedOrigins` config.
+
+## Refresh token design
+BCrypt is non-deterministic (random salt each call), so `GetByTokenHashAsync` with an exact-match SQL query would never find the stored hash. SHA256 is deterministic and appropriate here: the raw token is already a high-entropy cryptographically random value (CSPRNG via `RandomNumberGenerator`), so SHA256 provides collision resistance without BCrypt's brute-force-slowing work factor. Passwords use BCrypt for brute-force resistance; tokens use SHA256 for lookup.
+
+## Trade-offs / known limits
+- Fan-out-on-read timeline: simple and correct at seed scale; would need caching/materialization at large scale.
+- SignalR broadcasts to ALL connected clients (not per-follower). At scale, broadcast to a per-user group keyed by userId.
+- Single-image upload not implemented (imageUrl column present for future use).
+- Coverage measurement on Windows 11 with Smart App Control enabled blocks `coverlet.msbuild` DLL instrumentation; enforced on Linux CI.
+
+## AI development notes
+Built with Claude Code (Sonnet 4.6) in pair-programming mode. The human owned: CLAUDE.md constraints, architectural decisions (Clean Arch, auth design, SignalR pattern), code review of diffs. Claude owned: handler implementations, test files, infrastructure plumbing, DevOps, responsive polish. All Claude-generated commits include `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>`.
