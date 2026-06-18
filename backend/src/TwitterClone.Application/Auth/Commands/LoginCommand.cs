@@ -19,6 +19,7 @@ public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
 public sealed class LoginHandler(
     IUserRepository users,
     IPasswordHasher hasher,
+    ITokenHasher tokenHasher,
     IJwtService jwt,
     IRefreshTokenRepository refreshTokens,
     IUnitOfWork uow,
@@ -35,7 +36,7 @@ public sealed class LoginHandler(
         }
 
         var rawToken = jwt.GenerateRefreshToken();
-        var tokenHash = hasher.Hash(rawToken);
+        var tokenHash = tokenHasher.Hash(rawToken);
         var refreshToken = RefreshToken.Create(user.Id, tokenHash, DateTime.UtcNow.AddDays(config.RefreshTokenDays));
         await refreshTokens.AddAsync(refreshToken, ct);
 

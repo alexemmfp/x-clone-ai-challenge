@@ -9,14 +9,14 @@ public sealed record RefreshCommand(string RefreshToken);
 public sealed class RefreshHandler(
     IRefreshTokenRepository refreshTokens,
     IUserRepository users,
-    IPasswordHasher hasher,
+    ITokenHasher tokenHasher,
     IJwtService jwt,
     IUnitOfWork uow,
     IRefreshTokenConfig config)
 {
     public async Task<AuthResult> HandleAsync(RefreshCommand cmd, CancellationToken ct = default)
     {
-        var tokenHash = hasher.Hash(cmd.RefreshToken);
+        var tokenHash = tokenHasher.Hash(cmd.RefreshToken);
         var stored = await refreshTokens.GetByTokenHashAsync(tokenHash, ct)
             ?? throw new UnauthorizedAccessException("Invalid refresh token.");
 
@@ -31,7 +31,7 @@ public sealed class RefreshHandler(
             ?? throw new UnauthorizedAccessException("User not found.");
 
         var newRaw = jwt.GenerateRefreshToken();
-        var newHash = hasher.Hash(newRaw);
+        var newHash = tokenHasher.Hash(newRaw);
         var newToken = RefreshToken.Create(user.Id, newHash, DateTime.UtcNow.AddDays(config.RefreshTokenDays));
         await refreshTokens.AddAsync(newToken, ct);
 

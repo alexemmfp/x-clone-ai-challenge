@@ -7,10 +7,11 @@ namespace TwitterClone.Api.Endpoints;
 internal static class AuthEndpoints
 {
     private const string RefreshTokenCookie = "refresh_token";
-    private static readonly CookieOptions CookieOpts = new()
+
+    private static CookieOptions CookieOpts(HttpContext ctx) => new()
     {
         HttpOnly = true,
-        Secure = true,
+        Secure = ctx.Request.IsHttps,
         SameSite = SameSiteMode.Strict,
         Path = "/api/auth",
     };
@@ -41,7 +42,7 @@ internal static class AuthEndpoints
         }
 
         var auth = await handler.HandleAsync(cmd, ct);
-        ctx.Response.Cookies.Append(RefreshTokenCookie, auth.RefreshToken, CookieOpts);
+        ctx.Response.Cookies.Append(RefreshTokenCookie, auth.RefreshToken, CookieOpts(ctx));
         return Results.Ok(new { auth.AccessToken, auth.UserId, auth.Username });
     }
 
@@ -59,7 +60,7 @@ internal static class AuthEndpoints
         }
 
         var auth = await handler.HandleAsync(cmd, ct);
-        ctx.Response.Cookies.Append(RefreshTokenCookie, auth.RefreshToken, CookieOpts);
+        ctx.Response.Cookies.Append(RefreshTokenCookie, auth.RefreshToken, CookieOpts(ctx));
         return Results.Ok(new { auth.AccessToken, auth.UserId, auth.Username });
     }
 
@@ -75,7 +76,7 @@ internal static class AuthEndpoints
         }
 
         var auth = await handler.HandleAsync(new RefreshCommand(token), ct);
-        ctx.Response.Cookies.Append(RefreshTokenCookie, auth.RefreshToken, CookieOpts);
+        ctx.Response.Cookies.Append(RefreshTokenCookie, auth.RefreshToken, CookieOpts(ctx));
         return Results.Ok(new { auth.AccessToken, auth.UserId, auth.Username });
     }
 

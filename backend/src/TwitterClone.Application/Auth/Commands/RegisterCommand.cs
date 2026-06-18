@@ -32,6 +32,7 @@ public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand
 public sealed class RegisterHandler(
     IUserRepository users,
     IPasswordHasher hasher,
+    ITokenHasher tokenHasher,
     IJwtService jwt,
     IRefreshTokenRepository refreshTokens,
     IUnitOfWork uow,
@@ -53,7 +54,7 @@ public sealed class RegisterHandler(
         await users.AddAsync(user, ct);
 
         var rawToken = jwt.GenerateRefreshToken();
-        var tokenHash = hasher.Hash(rawToken);
+        var tokenHash = tokenHasher.Hash(rawToken);
         var refreshToken = RefreshToken.Create(user.Id, tokenHash, DateTime.UtcNow.AddDays(config.RefreshTokenDays));
         await refreshTokens.AddAsync(refreshToken, ct);
 

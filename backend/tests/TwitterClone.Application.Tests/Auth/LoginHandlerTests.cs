@@ -10,6 +10,7 @@ public class LoginHandlerTests
 {
     private readonly IUserRepository _users = Substitute.For<IUserRepository>();
     private readonly IPasswordHasher _hasher = Substitute.For<IPasswordHasher>();
+    private readonly ITokenHasher _tokenHasher = Substitute.For<ITokenHasher>();
     private readonly IJwtService _jwt = Substitute.For<IJwtService>();
     private readonly IRefreshTokenRepository _refreshTokens = Substitute.For<IRefreshTokenRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
@@ -18,14 +19,14 @@ public class LoginHandlerTests
     private readonly User _user = User.Create("testuser", "test@example.com", "hashed_password");
 
     private LoginHandler CreateHandler() =>
-        new(_users, _hasher, _jwt, _refreshTokens, _uow, _config);
+        new(_users, _hasher, _tokenHasher, _jwt, _refreshTokens, _uow, _config);
 
     [Fact]
     public async Task HandleAsync_ValidCredentials_ReturnsAuthResult()
     {
         _users.GetByEmailAsync("test@example.com").Returns(_user);
         _hasher.Verify("password123", "hashed_password").Returns(true);
-        _hasher.Hash(Arg.Any<string>()).Returns("hashed_refresh");
+        _tokenHasher.Hash(Arg.Any<string>()).Returns("hashed_refresh");
         _jwt.GenerateAccessToken(_user).Returns("access_token");
         _jwt.GenerateRefreshToken().Returns("raw_refresh");
         _config.RefreshTokenDays.Returns(7);

@@ -29,6 +29,7 @@ public static class DependencyInjection
 
         var workFactor = int.Parse(configuration["Bcrypt:WorkFactor"] ?? "11", System.Globalization.CultureInfo.InvariantCulture);
         services.AddSingleton<IPasswordHasher>(new BcryptPasswordHasher(workFactor));
+        services.AddSingleton<ITokenHasher, Sha256TokenHasher>();
         services.AddSingleton<IJwtService, JwtService>();
         services.AddSingleton<IRefreshTokenConfig, RefreshTokenConfig>();
 

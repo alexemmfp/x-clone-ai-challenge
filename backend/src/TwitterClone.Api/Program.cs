@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using TwitterClone.Api.Endpoints;
 using TwitterClone.Api.Middleware;
 using TwitterClone.Application;
@@ -33,9 +34,9 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var seeder = new DatabaseSeeder(
-        scope.ServiceProvider.GetRequiredService<AppDbContext>(),
-        scope.ServiceProvider.GetRequiredService<IPasswordHasher>());
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+    var seeder = new DatabaseSeeder(db, scope.ServiceProvider.GetRequiredService<IPasswordHasher>());
     await seeder.SeedAsync();
 }
 

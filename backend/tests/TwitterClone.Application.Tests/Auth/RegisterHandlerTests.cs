@@ -10,13 +10,14 @@ public class RegisterHandlerTests
 {
     private readonly IUserRepository _users = Substitute.For<IUserRepository>();
     private readonly IPasswordHasher _hasher = Substitute.For<IPasswordHasher>();
+    private readonly ITokenHasher _tokenHasher = Substitute.For<ITokenHasher>();
     private readonly IJwtService _jwt = Substitute.For<IJwtService>();
     private readonly IRefreshTokenRepository _refreshTokens = Substitute.For<IRefreshTokenRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
     private readonly IRefreshTokenConfig _config = Substitute.For<IRefreshTokenConfig>();
 
     private RegisterHandler CreateHandler() =>
-        new(_users, _hasher, _jwt, _refreshTokens, _uow, _config);
+        new(_users, _hasher, _tokenHasher, _jwt, _refreshTokens, _uow, _config);
 
     [Fact]
     public async Task HandleAsync_ValidCommand_ReturnsAuthResult()
@@ -24,7 +25,7 @@ public class RegisterHandlerTests
         _users.ExistsByEmailAsync("test@example.com").Returns(false);
         _users.ExistsByUsernameAsync("testuser").Returns(false);
         _hasher.Hash("password123").Returns("hashed_password");
-        _hasher.Hash(Arg.Is<string>(s => s != "password123")).Returns("hashed_refresh");
+        _tokenHasher.Hash(Arg.Any<string>()).Returns("hashed_refresh");
         _jwt.GenerateAccessToken(Arg.Any<User>()).Returns("access_token");
         _jwt.GenerateRefreshToken().Returns("raw_refresh_token");
         _config.RefreshTokenDays.Returns(7);

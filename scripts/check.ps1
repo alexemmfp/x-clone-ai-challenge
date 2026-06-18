@@ -28,7 +28,8 @@ function Step([string]$name, [string]$log, [scriptblock]$cmd) {
 }
 
 if ($Backend) {
-  $sln = Join-Path $root 'backend/TwitterClone.sln'
+  $sln = Join-Path $root 'backend/TwitterClone.slnx'
+  if (-not (Test-Path $sln)) { $sln = Join-Path $root 'backend/TwitterClone.sln' }
   Write-Host "`nBackend (.NET 10)" -ForegroundColor Cyan
   if (-not (Test-Path $sln)) {
     Write-Host '  - skipped: backend not scaffolded yet (backend/TwitterClone.sln missing)' -ForegroundColor DarkYellow
