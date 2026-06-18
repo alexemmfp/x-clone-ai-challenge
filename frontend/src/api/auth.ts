@@ -9,7 +9,7 @@ export const authApi = {
     apiClient.post<AuthResult>('/api/auth/register', data).then((r) => r.data),
 
   refresh: () =>
-    apiClient.post<{ accessToken: string }>('/api/auth/refresh').then((r) => r.data),
+    apiClient.post<AuthResult>('/api/auth/refresh').then((r) => r.data),
 
   logout: () => apiClient.post('/api/auth/logout'),
 }
