@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using TwitterClone.Application.Interfaces;
 using TwitterClone.Infrastructure.Auth;
+using TwitterClone.Infrastructure.Hubs;
 using TwitterClone.Infrastructure.Persistence;
 using TwitterClone.Infrastructure.Persistence.Repositories;
 
@@ -32,6 +33,9 @@ public static class DependencyInjection
         services.AddSingleton<ITokenHasher, Sha256TokenHasher>();
         services.AddSingleton<IJwtService, JwtService>();
         services.AddSingleton<IRefreshTokenConfig, RefreshTokenConfig>();
+
+        services.AddSignalR();
+        services.AddScoped<ITimelineNotifier, SignalRTimelineNotifier>();
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(opts =>

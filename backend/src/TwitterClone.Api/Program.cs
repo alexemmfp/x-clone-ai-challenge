@@ -8,6 +8,7 @@ using TwitterClone.Application.Interfaces;
 using TwitterClone.Application.Profile.Commands;
 using TwitterClone.Application.Tweets.Commands;
 using TwitterClone.Infrastructure;
+using TwitterClone.Infrastructure.Hubs;
 using TwitterClone.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,6 +51,7 @@ app.MapAuthEndpoints();
 app.MapTweetEndpoints();
 app.MapSocialEndpoints();
 app.MapProfileEndpoints();
+app.MapHub<TimelineHub>("/hubs/timeline");
 
 app.Run();
 

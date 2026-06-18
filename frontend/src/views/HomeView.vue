@@ -91,6 +91,7 @@ import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useTweetStore } from '@/stores/useTweetStore'
+import { useTimelineHub } from '@/composables/useTimelineHub'
 
 const auth = useAuthStore()
 const tweets = useTweetStore()
@@ -98,6 +99,7 @@ const tweets = useTweetStore()
 const draftText = ref('')
 const posting = ref(false)
 
+useTimelineHub((tweet) => tweets.prependTweet(tweet))
 onMounted(() => tweets.loadTimeline(true))
 
 async function post() {

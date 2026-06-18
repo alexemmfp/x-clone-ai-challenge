@@ -11,10 +11,11 @@ public class CreateTweetHandlerTests
     private readonly ITweetRepository _tweets = Substitute.For<ITweetRepository>();
     private readonly IUserRepository _users = Substitute.For<IUserRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
+    private readonly ITimelineNotifier _notifier = Substitute.For<ITimelineNotifier>();
 
     private readonly User _author = User.Create("alice", "alice@example.com", "hash");
 
-    private CreateTweetHandler CreateHandler() => new(_tweets, _users, _uow);
+    private CreateTweetHandler CreateHandler() => new(_tweets, _users, _uow, _notifier);
 
     [Fact]
     public async Task HandleAsync_ValidCommand_ReturnsTweetDto()

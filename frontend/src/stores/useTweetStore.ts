@@ -35,6 +35,12 @@ export const useTweetStore = defineStore('tweets', () => {
     timeline.value = [tweet, ...timeline.value]
   }
 
+  function prependTweet(tweet: Tweet) {
+    if (!timeline.value.some((t) => t.id === tweet.id)) {
+      timeline.value = [tweet, ...timeline.value]
+    }
+  }
+
   async function deleteTweet(id: string) {
     await tweetsApi.delete(id)
     timeline.value = timeline.value.filter((t) => t.id !== id)
@@ -52,5 +58,5 @@ export const useTweetStore = defineStore('tweets', () => {
     }
   }
 
-  return { timeline, loading, hasMore, loadTimeline, createTweet, deleteTweet, toggleLike }
+  return { timeline, loading, hasMore, loadTimeline, createTweet, deleteTweet, toggleLike, prependTweet }
 })

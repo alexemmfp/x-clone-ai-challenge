@@ -18,7 +18,8 @@ public sealed class CreateTweetCommandValidator : AbstractValidator<CreateTweetC
 public sealed class CreateTweetHandler(
     ITweetRepository tweets,
     IUserRepository users,
-    IUnitOfWork uow)
+    IUnitOfWork uow,
+    ITimelineNotifier notifier)
 {
     public async Task<TweetDto> HandleAsync(CreateTweetCommand cmd, CancellationToken ct = default)
     {
@@ -29,6 +30,8 @@ public sealed class CreateTweetHandler(
         await tweets.AddAsync(tweet, ct);
         await uow.SaveChangesAsync(ct);
 
-        return new TweetDto(tweet.Id, tweet.AuthorId, author.Username, tweet.Text, tweet.ParentId, tweet.ImageUrl, tweet.CreatedAt);
+        var dto = new TweetDto(tweet.Id, tweet.AuthorId, author.Username, tweet.Text, tweet.ParentId, tweet.ImageUrl, tweet.CreatedAt);
+        await notifier.NotifyTweetCreatedAsync(dto, ct);
+        return dto;
     }
 }
