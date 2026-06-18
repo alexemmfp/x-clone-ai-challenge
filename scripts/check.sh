@@ -19,7 +19,8 @@ step() { # name logfile cmd...
 
 if [ $DO_BE -eq 1 ]; then
   echo; echo "Backend (.NET 10)"
-  SLN="$ROOT/backend/TwitterClone.sln"
+  SLN="$ROOT/backend/TwitterClone.slnx"
+  [ -f "$SLN" ] || SLN="$ROOT/backend/TwitterClone.sln"
   if [ ! -f "$SLN" ]; then echo "  - skipped: backend not scaffolded yet"; else
     step "build (warnings as errors)" "$LOGS/backend-build.log" dotnet build "$SLN" -warnaserror --nologo
     step "format (lint)" "$LOGS/backend-format.log" dotnet format "$SLN" --verify-no-changes

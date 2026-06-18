@@ -15,16 +15,16 @@ public class DatabaseSeeder(AppDbContext db, IPasswordHasher passwordHasher)
 
         var hash = passwordHasher.Hash("Seed1234!");
 
-        var alice  = User.Create("alice",  "alice@example.com",  hash);
-        var bob    = User.Create("bob",    "bob@example.com",    hash);
-        var carol  = User.Create("carol",  "carol@example.com",  hash);
-        var dave   = User.Create("dave",   "dave@example.com",   hash);
-        var eve    = User.Create("eve",    "eve@example.com",    hash);
-        var frank  = User.Create("frank",  "frank@example.com",  hash);
-        var grace  = User.Create("grace",  "grace@example.com",  hash);
-        var henry  = User.Create("henry",  "henry@example.com",  hash);
-        var iris   = User.Create("iris",   "iris@example.com",   hash);
-        var jack   = User.Create("jack",   "jack@example.com",   hash);
+        var alice = User.Create("alice", "alice@example.com", hash);
+        var bob = User.Create("bob", "bob@example.com", hash);
+        var carol = User.Create("carol", "carol@example.com", hash);
+        var dave = User.Create("dave", "dave@example.com", hash);
+        var eve = User.Create("eve", "eve@example.com", hash);
+        var frank = User.Create("frank", "frank@example.com", hash);
+        var grace = User.Create("grace", "grace@example.com", hash);
+        var henry = User.Create("henry", "henry@example.com", hash);
+        var iris = User.Create("iris", "iris@example.com", hash);
+        var jack = User.Create("jack", "jack@example.com", hash);
 
         db.Users.AddRange(alice, bob, carol, dave, eve, frank, grace, henry, iris, jack);
 
@@ -117,80 +117,80 @@ public class DatabaseSeeder(AppDbContext db, IPasswordHasher passwordHasher)
 
         // Follow relationships
         db.Follows.AddRange(
-            Follow.Create(alice.Id,  bob.Id),
-            Follow.Create(alice.Id,  carol.Id),
-            Follow.Create(bob.Id,    alice.Id),
-            Follow.Create(bob.Id,    dave.Id),
-            Follow.Create(carol.Id,  alice.Id),
-            Follow.Create(carol.Id,  eve.Id),
-            Follow.Create(dave.Id,   bob.Id),
-            Follow.Create(dave.Id,   frank.Id),
-            Follow.Create(eve.Id,    carol.Id),
-            Follow.Create(eve.Id,    frank.Id),
-            Follow.Create(frank.Id,  grace.Id),
-            Follow.Create(frank.Id,  eve.Id),
-            Follow.Create(grace.Id,  henry.Id),
-            Follow.Create(grace.Id,  alice.Id),
-            Follow.Create(henry.Id,  iris.Id),
-            Follow.Create(henry.Id,  grace.Id),
-            Follow.Create(iris.Id,   jack.Id),
-            Follow.Create(iris.Id,   henry.Id),
-            Follow.Create(jack.Id,   alice.Id),
-            Follow.Create(jack.Id,   iris.Id)
+            Follow.Create(alice.Id, bob.Id),
+            Follow.Create(alice.Id, carol.Id),
+            Follow.Create(bob.Id, alice.Id),
+            Follow.Create(bob.Id, dave.Id),
+            Follow.Create(carol.Id, alice.Id),
+            Follow.Create(carol.Id, eve.Id),
+            Follow.Create(dave.Id, bob.Id),
+            Follow.Create(dave.Id, frank.Id),
+            Follow.Create(eve.Id, carol.Id),
+            Follow.Create(eve.Id, frank.Id),
+            Follow.Create(frank.Id, grace.Id),
+            Follow.Create(frank.Id, eve.Id),
+            Follow.Create(grace.Id, henry.Id),
+            Follow.Create(grace.Id, alice.Id),
+            Follow.Create(henry.Id, iris.Id),
+            Follow.Create(henry.Id, grace.Id),
+            Follow.Create(iris.Id, jack.Id),
+            Follow.Create(iris.Id, henry.Id),
+            Follow.Create(jack.Id, alice.Id),
+            Follow.Create(jack.Id, iris.Id)
         );
 
         // Likes: each user likes 2-4 tweets from people they follow
         db.Likes.AddRange(
             // alice follows bob and carol
-            Like.Create(alice.Id,  bobTweets[0].Id),
-            Like.Create(alice.Id,  bobTweets[1].Id),
-            Like.Create(alice.Id,  carolTweets[0].Id),
-            Like.Create(alice.Id,  carolTweets[2].Id),
+            Like.Create(alice.Id, bobTweets[0].Id),
+            Like.Create(alice.Id, bobTweets[1].Id),
+            Like.Create(alice.Id, carolTweets[0].Id),
+            Like.Create(alice.Id, carolTweets[2].Id),
 
             // bob follows alice and dave
-            Like.Create(bob.Id,    aliceTweets[0].Id),
-            Like.Create(bob.Id,    aliceTweets[3].Id),
-            Like.Create(bob.Id,    daveTweets[0].Id),
+            Like.Create(bob.Id, aliceTweets[0].Id),
+            Like.Create(bob.Id, aliceTweets[3].Id),
+            Like.Create(bob.Id, daveTweets[0].Id),
 
             // carol follows alice and eve
-            Like.Create(carol.Id,  aliceTweets[1].Id),
-            Like.Create(carol.Id,  eveTweets[0].Id),
-            Like.Create(carol.Id,  eveTweets[3].Id),
+            Like.Create(carol.Id, aliceTweets[1].Id),
+            Like.Create(carol.Id, eveTweets[0].Id),
+            Like.Create(carol.Id, eveTweets[3].Id),
 
             // dave follows bob and frank
-            Like.Create(dave.Id,   bobTweets[2].Id),
-            Like.Create(dave.Id,   frankTweets[0].Id),
-            Like.Create(dave.Id,   frankTweets[2].Id),
+            Like.Create(dave.Id, bobTweets[2].Id),
+            Like.Create(dave.Id, frankTweets[0].Id),
+            Like.Create(dave.Id, frankTweets[2].Id),
 
             // eve follows carol and frank
-            Like.Create(eve.Id,    carolTweets[1].Id),
-            Like.Create(eve.Id,    carolTweets[3].Id),
-            Like.Create(eve.Id,    frankTweets[1].Id),
+            Like.Create(eve.Id, carolTweets[1].Id),
+            Like.Create(eve.Id, carolTweets[3].Id),
+            Like.Create(eve.Id, frankTweets[1].Id),
 
             // frank follows grace and eve
-            Like.Create(frank.Id,  graceTweets[0].Id),
-            Like.Create(frank.Id,  graceTweets[2].Id),
-            Like.Create(frank.Id,  eveTweets[1].Id),
+            Like.Create(frank.Id, graceTweets[0].Id),
+            Like.Create(frank.Id, graceTweets[2].Id),
+            Like.Create(frank.Id, eveTweets[1].Id),
 
             // grace follows henry and alice
-            Like.Create(grace.Id,  henryTweets[0].Id),
-            Like.Create(grace.Id,  aliceTweets[2].Id),
-            Like.Create(grace.Id,  aliceTweets[0].Id),
+            Like.Create(grace.Id, henryTweets[0].Id),
+            Like.Create(grace.Id, aliceTweets[2].Id),
+            Like.Create(grace.Id, aliceTweets[0].Id),
 
             // henry follows iris and grace
-            Like.Create(henry.Id,  irisTweets[0].Id),
-            Like.Create(henry.Id,  irisTweets[2].Id),
-            Like.Create(henry.Id,  graceTweets[3].Id),
+            Like.Create(henry.Id, irisTweets[0].Id),
+            Like.Create(henry.Id, irisTweets[2].Id),
+            Like.Create(henry.Id, graceTweets[3].Id),
 
             // iris follows jack and henry
-            Like.Create(iris.Id,   jackTweets[0].Id),
-            Like.Create(iris.Id,   jackTweets[2].Id),
-            Like.Create(iris.Id,   henryTweets[1].Id),
+            Like.Create(iris.Id, jackTweets[0].Id),
+            Like.Create(iris.Id, jackTweets[2].Id),
+            Like.Create(iris.Id, henryTweets[1].Id),
 
             // jack follows alice and iris
-            Like.Create(jack.Id,   aliceTweets[0].Id),
-            Like.Create(jack.Id,   irisTweets[3].Id),
-            Like.Create(jack.Id,   irisTweets[1].Id)
+            Like.Create(jack.Id, aliceTweets[0].Id),
+            Like.Create(jack.Id, irisTweets[3].Id),
+            Like.Create(jack.Id, irisTweets[1].Id)
         );
 
         await db.SaveChangesAsync(ct);

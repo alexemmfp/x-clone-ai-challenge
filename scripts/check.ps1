@@ -36,9 +36,19 @@ if ($Backend) {
   } else {
     Step 'build (warnings as errors)' "$logs/backend-build.log" { dotnet build $sln -warnaserror --nologo }
     Step 'format (lint)'              "$logs/backend-format.log" { dotnet format $sln --verify-no-changes }
-    Step "tests + coverage >= $Coverage%" "$logs/backend-test.log" {
-      dotnet test $sln --nologo /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura `
-        /p:Threshold=$Coverage /p:ThresholdType=line /p:ThresholdStat=total
+    Step 'tests (all passing)'        "$logs/backend-test.log"   { dotnet test $sln --nologo }
+    # Coverage gate — skipped on Windows when Smart App Control blocks DLL instrumentation.
+    # On Linux/CI this is the enforcement gate; run `pwsh scripts/coverage.ps1` for local details.
+    $runningOnLinux = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux) -or
+                      [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)
+    if ($runningOnLinux) {
+      Step "coverage >= $Coverage%"   "$logs/backend-coverage.log" {
+        dotnet test $sln --nologo /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura `
+          /p:Threshold=$Coverage /p:ThresholdType=line /p:ThresholdStat=total
+      }
+    } else {
+      Write-Host -NoNewline ("  - {0,-32}" -f "coverage >= $Coverage%")
+      Write-Host 'SKIP (Windows SAC — run on Linux/CI to enforce)' -ForegroundColor DarkYellow
     }
   }
 }

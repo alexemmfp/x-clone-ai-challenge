@@ -57,18 +57,31 @@ describe('useAuthStore', () => {
     expect(auth.user?.username).toBe('bob')
   })
 
-  it('tryRefresh updates accessToken on success', async () => {
-    vi.mocked(authApi.refresh).mockResolvedValue({ accessToken: 'refreshed' })
+  it('tryRefresh updates accessToken and user on success', async () => {
+    vi.mocked(authApi.refresh).mockResolvedValue({
+      accessToken: 'refreshed',
+      refreshToken: '',
+      userId: 'u1',
+      username: 'alice',
+    })
     const auth = useAuthStore()
     await auth.tryRefresh()
     expect(auth.accessToken).toBe('refreshed')
+    expect(auth.user?.username).toBe('alice')
   })
 
-  it('tryRefresh clears auth on failure', async () => {
+  it('tryRefresh clears auth on failure when not logged in', async () => {
+    vi.mocked(authApi.refresh).mockRejectedValue(new Error('401'))
+    const auth = useAuthStore()
+    await auth.tryRefresh()
+    expect(auth.isAuthenticated).toBe(false)
+  })
+
+  it('tryRefresh keeps auth on failure when user already set', async () => {
     vi.mocked(authApi.refresh).mockRejectedValue(new Error('401'))
     const auth = useAuthStore()
     auth.setAuth('old', { id: '1', username: 'alice' })
     await auth.tryRefresh()
-    expect(auth.isAuthenticated).toBe(false)
+    expect(auth.isAuthenticated).toBe(true)
   })
 })
