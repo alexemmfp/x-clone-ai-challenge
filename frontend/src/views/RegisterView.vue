@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50">
-    <div class="w-full max-w-sm bg-white rounded-2xl shadow p-8 space-y-6">
+  <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-0">
+    <div class="w-full sm:max-w-md mx-auto bg-white rounded-2xl shadow p-6 sm:p-8 space-y-6">
       <h1 class="text-2xl font-bold text-center text-gray-900">Join Flock</h1>
 
       <form class="space-y-4" @submit.prevent="submit">
@@ -13,7 +13,7 @@
             required
             minlength="3"
             maxlength="50"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
         </div>
 
@@ -24,7 +24,7 @@
             type="email"
             autocomplete="email"
             required
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
         </div>
 
@@ -36,7 +36,7 @@
             autocomplete="new-password"
             required
             minlength="8"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
         </div>
 
@@ -45,7 +45,7 @@
         <button
           type="submit"
           :disabled="loading"
-          class="w-full bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white font-semibold rounded-lg py-2 text-sm transition"
+          class="w-full bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white font-semibold rounded-lg py-2.5 text-sm md:text-base transition"
         >
           {{ loading ? 'Creating account…' : 'Create account' }}
         </button>

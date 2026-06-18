@@ -3,9 +3,11 @@ using TwitterClone.Api.Endpoints;
 using TwitterClone.Api.Middleware;
 using TwitterClone.Application;
 using TwitterClone.Application.Auth.Commands;
+using TwitterClone.Application.Interfaces;
 using TwitterClone.Application.Profile.Commands;
 using TwitterClone.Application.Tweets.Commands;
 using TwitterClone.Infrastructure;
+using TwitterClone.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,14 @@ builder.Services.AddCors(opts =>
         .AllowCredentials()));
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = new DatabaseSeeder(
+        scope.ServiceProvider.GetRequiredService<AppDbContext>(),
+        scope.ServiceProvider.GetRequiredService<IPasswordHasher>());
+    await seeder.SeedAsync();
+}
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseCors();

@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="max-w-xl mx-auto py-6 px-4 space-y-4">
+    <div class="max-w-xl md:max-w-2xl mx-auto py-6 px-4 md:px-6 space-y-4">
       <!-- Header -->
       <div class="flex items-center justify-between">
         <h1 class="text-xl font-bold text-gray-900">Home</h1>
@@ -19,7 +19,7 @@
           rows="3"
           maxlength="280"
           placeholder="What's happening?"
-          class="w-full resize-none border-none outline-none text-gray-900 placeholder-gray-400 text-sm"
+          class="w-full resize-none border-none outline-none text-gray-900 placeholder-gray-400 text-sm md:text-base"
         />
         <div class="flex items-center justify-between">
           <span class="text-xs text-gray-400">{{ draftText.length }}/280</span>
@@ -45,7 +45,7 @@
       <article
         v-for="tweet in tweets.timeline"
         :key="tweet.id"
-        class="bg-white rounded-2xl shadow p-4 space-y-2"
+        class="bg-white rounded-2xl shadow p-3 sm:p-4 space-y-2"
       >
         <div class="flex items-center justify-between">
           <RouterLink
@@ -54,10 +54,10 @@
           >@{{ tweet.authorUsername }}</RouterLink>
           <span class="text-xs text-gray-400">{{ formatDate(tweet.createdAt) }}</span>
         </div>
-        <p class="text-gray-800 text-sm whitespace-pre-wrap">{{ tweet.text }}</p>
+        <p class="text-gray-800 text-sm md:text-base whitespace-pre-wrap">{{ tweet.text }}</p>
         <div class="flex items-center gap-4">
           <button
-            class="text-xs flex items-center gap-1 transition"
+            class="flex items-center gap-1 transition min-h-[44px] text-xs"
             :class="tweet.likedByViewer ? 'text-rose-500' : 'text-gray-400 hover:text-rose-400'"
             @click="tweets.toggleLike(tweet)"
           >
@@ -65,7 +65,7 @@
           </button>
           <button
             v-if="tweet.authorId === auth.user?.id"
-            class="text-xs text-red-400 hover:text-red-600 transition ml-auto"
+            class="text-xs text-red-400 hover:text-red-600 transition ml-auto min-h-[44px]"
             @click="tweets.deleteTweet(tweet.id)"
           >
             Delete

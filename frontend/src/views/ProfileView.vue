@@ -1,12 +1,12 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="max-w-xl mx-auto py-6 px-4 space-y-4">
+    <div class="max-w-xl md:max-w-2xl mx-auto py-6 px-4 md:px-6 space-y-4">
       <RouterLink to="/" class="text-sm text-sky-500 hover:underline">← Home</RouterLink>
 
       <div v-if="loading" class="text-center text-gray-400 py-12">Loading…</div>
 
-      <div v-else-if="profile" class="bg-white rounded-2xl shadow p-6 space-y-3">
-        <div class="flex items-start justify-between">
+      <div v-else-if="profile" class="bg-white rounded-2xl shadow p-4 sm:p-6 space-y-3">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 class="text-xl font-bold text-gray-900">@{{ profile.username }}</h1>
             <p v-if="profile.bio" class="text-sm text-gray-500 mt-1">{{ profile.bio }}</p>
@@ -14,7 +14,7 @@
 
           <button
             v-if="auth.user && auth.user.id !== profile.id"
-            class="text-sm font-semibold rounded-full px-4 py-1.5 transition border"
+            class="w-full sm:w-auto text-sm font-semibold rounded-full px-4 py-2 sm:py-1.5 transition border"
             :class="profile.isFollowedByViewer
               ? 'border-gray-300 text-gray-700 hover:bg-gray-50'
               : 'bg-sky-500 text-white border-sky-500 hover:bg-sky-600'"
@@ -24,7 +24,7 @@
           </button>
         </div>
 
-        <div class="flex gap-6 text-sm text-gray-500">
+        <div class="flex flex-wrap gap-4 sm:gap-6 text-sm text-gray-500">
           <span><strong class="text-gray-900">{{ profile.followingCount }}</strong> Following</span>
           <span><strong class="text-gray-900">{{ profile.followerCount }}</strong> Followers</span>
         </div>
