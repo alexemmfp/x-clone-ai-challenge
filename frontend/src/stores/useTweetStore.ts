@@ -30,8 +30,8 @@ export const useTweetStore = defineStore('tweets', () => {
     }
   }
 
-  async function createTweet(text: string) {
-    const tweet = await tweetsApi.create({ text })
+  async function createTweet(text: string, imageUrl?: string) {
+    const tweet = await tweetsApi.create({ text, ...(imageUrl ? { imageUrl } : {}) })
     timeline.value = [tweet, ...timeline.value]
   }
 

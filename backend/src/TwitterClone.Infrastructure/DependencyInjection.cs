@@ -9,6 +9,7 @@ using TwitterClone.Infrastructure.Auth;
 using TwitterClone.Infrastructure.Hubs;
 using TwitterClone.Infrastructure.Persistence;
 using TwitterClone.Infrastructure.Persistence.Repositories;
+using TwitterClone.Infrastructure.Storage;
 
 namespace TwitterClone.Infrastructure;
 
@@ -33,6 +34,9 @@ public static class DependencyInjection
         services.AddSingleton<ITokenHasher, Sha256TokenHasher>();
         services.AddSingleton<IJwtService, JwtService>();
         services.AddSingleton<IRefreshTokenConfig, RefreshTokenConfig>();
+
+        var uploadsPath = configuration["Storage:UploadsPath"] ?? Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+        services.AddSingleton<IFileStorageService>(new LocalFileStorageService(uploadsPath));
 
         services.AddSignalR();
         services.AddScoped<ITimelineNotifier, SignalRTimelineNotifier>();

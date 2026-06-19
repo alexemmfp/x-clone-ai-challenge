@@ -13,7 +13,7 @@ public class Tweet
 
     private Tweet() { }
 
-    public static Tweet Create(Guid authorId, string text, Guid? parentId = null)
+    public static Tweet Create(Guid authorId, string text, Guid? parentId = null, string? imageUrl = null)
     {
         if (string.IsNullOrWhiteSpace(text))
         {
@@ -31,6 +31,7 @@ public class Tweet
             AuthorId = authorId,
             Text = text.Trim(),
             ParentId = parentId,
+            ImageUrl = imageUrl,
             CreatedAt = DateTime.UtcNow,
         };
     }

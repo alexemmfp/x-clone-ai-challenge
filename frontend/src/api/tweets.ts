@@ -17,4 +17,10 @@ export const tweetsApi = {
 
   getReplies: (id: string) =>
     apiClient.get<Tweet[]>(`/api/tweets/${id}/replies`).then((r) => r.data),
+
+  uploadImage: (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    return apiClient.post<{ url: string }>('/api/media/upload', form).then((r) => r.data.url)
+  },
 }

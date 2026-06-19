@@ -48,7 +48,7 @@ Legend: `[ ]` todo · `[~]` en progreso (marcar al INICIAR, commitear inmediatam
 - [x] Docker compose full-stack one-command up. — `build: full-stack docker-compose`
 - [x] Real-time timeline via SignalR. — `feat(realtime): live timeline via signalr`
 - [x] Reply threads (Tweet.ParentId + thread view). — `feat(replies): threaded replies` · [SPEC §reply-threads](docs/SPEC.md#reply-threads)
-- [~] Image upload on tweet. — `feat(media): image upload on tweets` · [SPEC §image-upload](docs/SPEC.md#image-upload)
+- [x] Image upload on tweet. — `feat(media): image upload on tweets` · [SPEC §image-upload](docs/SPEC.md#image-upload)
 
 ## M8 — Final polish
 - [x] Coverage audit ≥85%, remove dead code, consistent naming. — `refactor: cleanup and coverage audit`

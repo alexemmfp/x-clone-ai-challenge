@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using TwitterClone.Application.Auth.Commands;
+using TwitterClone.Application.Media.Commands;
 using TwitterClone.Application.Profile.Commands;
 using TwitterClone.Application.Profile.Queries;
 using TwitterClone.Application.Search.Queries;
@@ -13,6 +14,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddScoped<UploadImageHandler>();
         services.AddScoped<RegisterHandler>();
         services.AddScoped<LoginHandler>();
         services.AddScoped<RefreshHandler>();

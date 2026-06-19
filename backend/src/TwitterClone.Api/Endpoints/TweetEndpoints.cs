@@ -33,7 +33,7 @@ internal static class TweetEndpoints
             return Results.Unauthorized();
         }
 
-        var cmd = new CreateTweetCommand(userId.Value, req.Text, req.ParentId);
+        var cmd = new CreateTweetCommand(userId.Value, req.Text, req.ParentId, req.ImageUrl);
         var result = await validator.ValidateAsync(cmd, ct);
         if (!result.IsValid)
         {
@@ -116,5 +116,5 @@ internal static class TweetEndpoints
         return Guid.TryParse(claim, out var id) ? id : null;
     }
 
-    private sealed record CreateTweetRequest(string Text, Guid? ParentId = null);
+    private sealed record CreateTweetRequest(string Text, Guid? ParentId = null, string? ImageUrl = null);
 }

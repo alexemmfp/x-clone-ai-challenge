@@ -33,6 +33,9 @@ services:
       Bcrypt__WorkFactor: "12"
       Cors__AllowedOrigins__0: "http://localhost"
       Cors__AllowedOrigins__1: "http://localhost:5173"
+      Storage__UploadsPath: "/app/uploads"
+    volumes:
+      - uploads:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -51,3 +54,4 @@ services:
 
 volumes:
   pgdata:
+  uploads:

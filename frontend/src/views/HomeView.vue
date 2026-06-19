@@ -21,15 +21,29 @@
           placeholder="What's happening?"
           class="w-full resize-none border-none outline-none text-gray-900 placeholder-gray-400 text-sm md:text-base"
         />
-        <div class="flex items-center justify-between">
-          <span class="text-xs text-gray-400">{{ draftText.length }}/280</span>
+        <div v-if="imagePreview" class="relative inline-block">
+          <img :src="imagePreview" class="max-h-40 rounded-lg object-cover" alt="preview" />
           <button
-            :disabled="!draftText.trim() || posting"
-            class="bg-sky-500 hover:bg-sky-600 disabled:opacity-40 text-white text-sm font-semibold rounded-full px-5 py-2 transition"
-            @click="post"
-          >
-            {{ posting ? 'Posting…' : 'Post' }}
-          </button>
+            class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
+            @click="clearImage"
+          >✕</button>
+        </div>
+        <div class="flex items-center justify-between">
+          <label class="cursor-pointer text-sky-500 hover:text-sky-600 transition">
+            <span class="text-sm">📎</span>
+            <input type="file" accept="image/*" class="hidden" @change="onFileChange" />
+          </label>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-400">{{ draftText.length }}/280</span>
+            <button
+              :disabled="!draftText.trim() || posting"
+              data-testid="post-submit"
+              class="bg-sky-500 hover:bg-sky-600 disabled:opacity-40 text-white text-sm font-semibold rounded-full px-5 py-2 transition"
+              @click="post"
+            >
+              {{ posting ? 'Posting…' : 'Post' }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -58,6 +72,7 @@
         <RouterLink :to="`/tweet/${tweet.id}`">
           <p class="text-gray-800 text-sm md:text-base whitespace-pre-wrap hover:text-sky-700 transition">{{ tweet.text }}</p>
         </RouterLink>
+        <img v-if="tweet.imageUrl" :src="tweet.imageUrl" class="rounded-lg max-h-64 object-cover w-full" alt="tweet image" />
         <div class="flex items-center gap-4">
           <button
             class="flex items-center gap-1 transition min-h-[44px] text-xs"
@@ -95,22 +110,41 @@ import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useTweetStore } from '@/stores/useTweetStore'
 import { useTimelineHub } from '@/composables/useTimelineHub'
+import { tweetsApi } from '@/api/tweets'
 
 const auth = useAuthStore()
 const tweets = useTweetStore()
 
 const draftText = ref('')
 const posting = ref(false)
+const selectedFile = ref<File | null>(null)
+const imagePreview = ref<string | null>(null)
 
 useTimelineHub((tweet) => tweets.prependTweet(tweet))
 onMounted(() => tweets.loadTimeline(true))
+
+function onFileChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0] ?? null
+  selectedFile.value = file
+  imagePreview.value = file ? URL.createObjectURL(file) : null
+}
+
+function clearImage() {
+  selectedFile.value = null
+  imagePreview.value = null
+}
 
 async function post() {
   if (!draftText.value.trim()) return
   posting.value = true
   try {
-    await tweets.createTweet(draftText.value.trim())
+    let imageUrl: string | undefined
+    if (selectedFile.value) {
+      imageUrl = await tweetsApi.uploadImage(selectedFile.value)
+    }
+    await tweets.createTweet(draftText.value.trim(), imageUrl)
     draftText.value = ''
+    clearImage()
   } finally {
     posting.value = false
   }

@@ -46,12 +46,22 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
+var uploadsPath = builder.Configuration["Storage:UploadsPath"] ?? Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+Directory.CreateDirectory(uploadsPath);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads",
+});
+
+
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapAuthEndpoints();
 app.MapTweetEndpoints();
 app.MapSocialEndpoints();
 app.MapProfileEndpoints();
 app.MapHub<TimelineHub>("/hubs/timeline");
+app.MapMediaEndpoints();
 
 app.Run();
 
