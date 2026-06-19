@@ -35,4 +35,10 @@ internal sealed class TweetRepository(AppDbContext db) : ITweetRepository
             .Take(pageSize)
             .ToListAsync(ct);
     }
+
+    public async Task<IReadOnlyList<Tweet>> GetRepliesAsync(Guid parentId, CancellationToken ct = default) =>
+        await db.Tweets
+            .Where(t => t.ParentId == parentId)
+            .OrderBy(t => t.CreatedAt)
+            .ToListAsync(ct);
 }

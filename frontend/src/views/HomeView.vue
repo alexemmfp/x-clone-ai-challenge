@@ -45,7 +45,8 @@
       <article
         v-for="tweet in tweets.timeline"
         :key="tweet.id"
-        class="bg-white rounded-2xl shadow p-3 sm:p-4 space-y-2"
+        class="bg-white rounded-2xl shadow p-3 sm:p-4 space-y-2 cursor-pointer hover:bg-gray-50 transition"
+        @click.self="$router.push(`/tweet/${tweet.id}`)"
       >
         <div class="flex items-center justify-between">
           <RouterLink
@@ -54,7 +55,9 @@
           >@{{ tweet.authorUsername }}</RouterLink>
           <span class="text-xs text-gray-400">{{ formatDate(tweet.createdAt) }}</span>
         </div>
-        <p class="text-gray-800 text-sm md:text-base whitespace-pre-wrap">{{ tweet.text }}</p>
+        <RouterLink :to="`/tweet/${tweet.id}`">
+          <p class="text-gray-800 text-sm md:text-base whitespace-pre-wrap hover:text-sky-700 transition">{{ tweet.text }}</p>
+        </RouterLink>
         <div class="flex items-center gap-4">
           <button
             class="flex items-center gap-1 transition min-h-[44px] text-xs"

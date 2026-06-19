@@ -21,6 +21,8 @@ public static class DependencyInjection
         services.AddScoped<CreateTweetHandler>();
         services.AddScoped<DeleteTweetHandler>();
         services.AddScoped<GetTimelineHandler>();
+        services.AddScoped<GetTweetHandler>();
+        services.AddScoped<GetRepliesHandler>();
 
         services.AddScoped<FollowHandler>();
         services.AddScoped<UnfollowHandler>();

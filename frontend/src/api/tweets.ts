@@ -11,4 +11,10 @@ export const tweetsApi = {
     apiClient
       .get<Tweet[]>('/api/timeline', { params: { page, pageSize } })
       .then((r) => r.data),
+
+  getById: (id: string) =>
+    apiClient.get<Tweet>(`/api/tweets/${id}`).then((r) => r.data),
+
+  getReplies: (id: string) =>
+    apiClient.get<Tweet[]>(`/api/tweets/${id}/replies`).then((r) => r.data),
 }

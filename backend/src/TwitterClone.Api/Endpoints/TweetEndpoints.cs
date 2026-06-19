@@ -12,6 +12,8 @@ internal static class TweetEndpoints
         var group = app.MapGroup("/api/tweets").RequireAuthorization();
 
         group.MapPost("/", CreateAsync);
+        group.MapGet("/{id:guid}", GetTweetAsync);
+        group.MapGet("/{id:guid}/replies", GetRepliesAsync);
         group.MapDelete("/{id:guid}", DeleteAsync);
         app.MapGet("/api/timeline", GetTimelineAsync).RequireAuthorization();
 
@@ -40,6 +42,38 @@ internal static class TweetEndpoints
 
         var tweet = await handler.HandleAsync(cmd, ct);
         return Results.Created($"/api/tweets/{tweet.Id}", tweet);
+    }
+
+    private static async Task<IResult> GetTweetAsync(
+        Guid id,
+        GetTweetHandler handler,
+        HttpContext ctx,
+        CancellationToken ct)
+    {
+        var userId = GetUserId(ctx);
+        if (userId is null)
+        {
+            return Results.Unauthorized();
+        }
+
+        var tweet = await handler.HandleAsync(new GetTweetQuery(userId.Value, id), ct);
+        return tweet is null ? Results.NotFound() : Results.Ok(tweet);
+    }
+
+    private static async Task<IResult> GetRepliesAsync(
+        Guid id,
+        GetRepliesHandler handler,
+        HttpContext ctx,
+        CancellationToken ct)
+    {
+        var userId = GetUserId(ctx);
+        if (userId is null)
+        {
+            return Results.Unauthorized();
+        }
+
+        var replies = await handler.HandleAsync(new GetRepliesQuery(userId.Value, id), ct);
+        return Results.Ok(replies);
     }
 
     private static async Task<IResult> DeleteAsync(
