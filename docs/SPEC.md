@@ -54,10 +54,18 @@ The Runbook must let evaluators boot the app **with no extra manual steps**. Mis
 - Technical decisions: stack rationale, timeline & follow-graph modeling, auth approach, trade-offs/known limits, which AI tools were used and how.
 
 ## Bonus (targeted)
-- **Docker compose** — one command brings up the whole stack.
-- **Real-time** — live timeline updates (SignalR / WebSockets).
-- **Reply threads** — replies to tweets, threaded view.
-- **Image upload** — attach one image to a tweet.
+
+### Docker compose
+One command (`docker compose up -d --build`) brings up Postgres + API + frontend.
+
+### Real-time
+Live timeline updates via SignalR / WebSockets. New tweets appear without page refresh.
+
+### Reply threads {#reply-threads}
+Replies to tweets using `Tweet.ParentId`. Thread view shows replies nested under the parent tweet.
+
+### Image upload {#image-upload}
+Attach one image to a tweet. Store on local volume or S3-compatible storage.
 
 ## Delivery
 - Public GitHub repo (or shared with evaluators), full history visible.

@@ -38,3 +38,33 @@ Coverage + full gate: `pwsh scripts/check.ps1 -Backend`.
 
 ## Key packages
 Npgsql.EntityFrameworkCore.PostgreSQL · Microsoft.EntityFrameworkCore.Design · FluentValidation · BCrypt.Net-Next · Microsoft.AspNetCore.Authentication.JwtBearer · Microsoft.AspNetCore.SignalR · xUnit · FluentAssertions · NSubstitute · Testcontainers.PostgreSql · coverlet.collector · NetArchTest.Rules.
+
+## TDD Workflow — seguir en orden estricto
+
+### 1 — Red (tests primero, antes de implementar)
+```powershell
+# Crear test file en tests/TwitterClone.<Layer>.Tests/<Feature>/
+dotnet test backend/TwitterClone.sln --nologo
+# Tests nuevos DEBEN FALLAR. Si pasan → el test no cubre la feature. Arreglarlo.
+```
+
+### 2 — Green (implementar hasta que los tests pasen)
+```powershell
+dotnet build backend/TwitterClone.sln -warnaserror --nologo
+dotnet test  backend/TwitterClone.sln --nologo
+# Todos deben pasar.
+```
+
+### 3 — Gate (antes de commitear)
+```powershell
+pwsh scripts/check.ps1 -Backend
+# MUST print: CHECK PASSED — si no, arreglar. NO commitear con rojo.
+```
+
+### 4 — Commit (feature + tests + ROADMAP en un solo commit)
+```powershell
+git add backend/src/... backend/tests/... docs/ROADMAP.md
+git commit -m "feat(<scope>): descripción
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
+```

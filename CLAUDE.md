@@ -4,6 +4,22 @@
 > Companion guides: [`backend/AGENTS.md`](backend/AGENTS.md), [`frontend/AGENTS.md`](frontend/AGENTS.md).
 > Specs: [`docs/SPEC.md`](docs/SPEC.md) · Plan: [`docs/ROADMAP.md`](docs/ROADMAP.md) · Arch: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
+## 0. SESSION START — ejecutar en orden, sin saltear pasos
+
+> Protocolo obligatorio. Cada paso es prereq del siguiente. **No empezar a codear antes de completar 1–4.**
+
+1. **Baseline**: `pwsh scripts/check.ps1` → debe estar verde. Si no, arreglar PRIMERO.
+2. **Estado**: Leer `docs/ROADMAP.md` → encontrar primer `[ ]`. Marcarlo `[~]` + `git commit -m "chore: mark <task> in progress"`.
+3. **Spec**: Leer la sección de `docs/SPEC.md` que corresponde a la tarea `[~]`.
+4. **Convenciones**: Leer `backend/AGENTS.md` o `frontend/AGENTS.md` según la capa afectada.
+5. **TDD** → ver §TDD abajo. NO implementar antes de que los tests existan y fallen.
+6. **Commit**: feature + tests + `[x]` en `ROADMAP.md` en el **mismo commit**.
+7. **Push**: `git push origin main`.
+8. **Loop**: volver al paso 2.
+
+**NUNCA** commitear sin que `check.ps1` sea verde.  
+**NUNCA** marcar `[x]` en ROADMAP en un commit separado del feature.
+
 ## 1. Goal & constraints
 
 Build a functional Twitter/X clone, full-stack. This is a graded 72h challenge. We are evaluated on the **process** (commit history) as much as the result.
@@ -71,6 +87,12 @@ pwsh scripts/check.ps1 -Frontend
 ```
 
 Detailed logs go to `.logs/`; the console shows only a few summary lines (keep agent context clean). Day-to-day commands live in `backend/AGENTS.md` and `frontend/AGENTS.md`.
+
+## TDD — orden obligatorio (red → green → commit)
+
+1. **Red** — Crear archivo(s) de test para la feature. Correr `pwsh scripts/check.ps1 -Backend` (o `-Frontend`). Los tests **DEBEN FALLAR**. Si pasan, el test está incompleto — arreglarlo.
+2. **Green** — Implementar mínimo código para que pasen. Correr `check.ps1` completo. **DEBE ser verde**.
+3. **Commit** — `feat(<scope>): descripción` + `[x]` en `ROADMAP.md` en el mismo commit.
 
 ## 6. Definition of Done (a feature is NOT done until all are true)
 

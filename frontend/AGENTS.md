@@ -40,3 +40,30 @@ Full gate: `pwsh scripts/check.ps1 -Frontend`.
 
 ## Key packages
 vue · vue-router · pinia · axios · tailwindcss · @microsoft/signalr (real-time) · vitest · @vue/test-utils · @playwright/test · eslint · prettier · vue-tsc.
+
+## TDD Workflow — seguir en orden estricto
+
+### 1 — Red (tests primero)
+```bash
+# Crear test en frontend/tests/<feature>.test.ts (unit) o frontend/e2e/<feature>.spec.ts (E2E)
+npm run test:unit
+# Tests nuevos DEBEN FALLAR. Si pasan → el test no cubre la feature. Arreglarlo.
+```
+
+### 2 — Green (implementar)
+```bash
+npm run test:unit   # todos deben pasar
+```
+
+### 3 — Gate (antes de commitear)
+```powershell
+pwsh scripts/check.ps1 -Frontend   # MUST: CHECK PASSED
+```
+
+### 4 — Commit (feature + tests + ROADMAP en un solo commit)
+```bash
+git add frontend/src/... frontend/tests/... docs/ROADMAP.md
+git commit -m "feat(web): descripción
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
+```

@@ -2,7 +2,9 @@
 
 Order of work, mapped to commits. Each milestone = one or a few focused commits, **tests included in the same milestone**. Keep history linear and legible (Process = 15%). Check `scripts/check.ps1` green before each commit.
 
-Legend: `[ ]` todo · `[~]` in progress · `[x]` done.
+Legend: `[ ]` todo · `[~]` en progreso (marcar al INICIAR, commitear inmediatamente) · `[x]` done (incluir en el MISMO commit que el feature).
+
+> **Regla de estado**: Marcar `[~]` al iniciar la tarea (commit propio: `chore: mark <task> in progress`). Marcar `[x]` en el MISMO commit que el feature + tests. Nunca en batch al final de la sesión.
 
 ## M0 — Harness & scaffolding
 - [x] Harness: CLAUDE.md, AGENTS guides, SPEC, ROADMAP, ARCHITECTURE, check scripts, gates, docker, env, CI. — `chore: project harness and conventions`
@@ -45,8 +47,8 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done.
 ## M7 — Bonus (in value order; do only what time allows)
 - [x] Docker compose full-stack one-command up. — `build: full-stack docker-compose`
 - [x] Real-time timeline via SignalR. — `feat(realtime): live timeline via signalr`
-- [ ] Reply threads (Tweet.ParentId + thread view). — `feat(replies): threaded replies`
-- [ ] Image upload on tweet. — `feat(media): image upload on tweets`
+- [ ] Reply threads (Tweet.ParentId + thread view). — `feat(replies): threaded replies` · [SPEC §reply-threads](docs/SPEC.md#reply-threads)
+- [ ] Image upload on tweet. — `feat(media): image upload on tweets` · [SPEC §image-upload](docs/SPEC.md#image-upload)
 
 ## M8 — Final polish
 - [x] Coverage audit ≥85%, remove dead code, consistent naming. — `refactor: cleanup and coverage audit`
