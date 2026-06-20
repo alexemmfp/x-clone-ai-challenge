@@ -11,6 +11,7 @@ vi.mock('@/api/tweets', () => ({
     create: vi.fn(),
     delete: vi.fn(),
     getTimeline: vi.fn(),
+    uploadImage: vi.fn(),
   },
 }))
 
@@ -19,6 +20,12 @@ vi.mock('@/api/social', () => ({
     likeTweet: vi.fn(),
     unlikeTweet: vi.fn(),
   },
+}))
+
+vi.mock('@/stores/useMentionsStore', () => ({
+  useMentionsStore: () => ({
+    validateBatch: vi.fn(),
+  }),
 }))
 
 import { tweetsApi } from '@/api/tweets'
@@ -114,5 +121,32 @@ describe('ThreadView', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('New reply text')
+  })
+
+  it('shows image upload button in reply composer', async () => {
+    const wrapper = mountThread()
+    await flushPromises()
+    expect(wrapper.find('[data-testid="reply-image-btn"]').exists()).toBe(true)
+  })
+
+  it('uploads image and passes imageUrl on reply submit', async () => {
+    const newReply = { ...replyTweet, id: 'reply-4', text: 'reply with image', imageUrl: '/uploads/test.png' }
+    vi.mocked(tweetsApi.uploadImage).mockResolvedValue('/uploads/test.png')
+    vi.mocked(tweetsApi.create).mockResolvedValue(newReply)
+
+    const wrapper = mountThread()
+    await flushPromises()
+
+    const file = new File(['img'], 'photo.png', { type: 'image/png' })
+    const input = wrapper.find<HTMLInputElement>('[data-testid="reply-image-input"]')
+    Object.defineProperty(input.element, 'files', { value: [file] })
+    await input.trigger('change')
+
+    await wrapper.find('textarea').setValue('reply with image')
+    await wrapper.find('button[data-testid="reply-submit"]').trigger('click')
+    await flushPromises()
+
+    expect(tweetsApi.uploadImage).toHaveBeenCalledWith(file)
+    expect(tweetsApi.create).toHaveBeenCalledWith(expect.objectContaining({ imageUrl: '/uploads/test.png' }))
   })
 })

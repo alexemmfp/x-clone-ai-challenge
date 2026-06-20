@@ -16,6 +16,9 @@
             <span class="text-xs text-gray-400">{{ formatDate(parent.createdAt) }}</span>
           </div>
           <p class="text-gray-800 text-sm md:text-base whitespace-pre-wrap">{{ parent.text }}</p>
+          <a v-if="parent.imageUrl" :href="parent.imageUrl" target="_blank" rel="noopener">
+            <img :src="parent.imageUrl" class="rounded-lg max-w-full object-contain" alt="tweet image" />
+          </a>
           <div class="flex items-center gap-4">
             <button
               class="flex items-center gap-1 transition min-h-[44px] text-xs"
@@ -36,8 +39,27 @@
             placeholder="Write a reply…"
             class="w-full resize-none border-none outline-none text-gray-900 placeholder-gray-400 text-sm"
           />
+          <div v-if="replyImagePreview" class="relative inline-block">
+            <img :src="replyImagePreview" class="max-h-32 rounded-lg object-cover" alt="preview" />
+            <button
+              class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
+              @click="clearReplyImage"
+            >✕</button>
+          </div>
           <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-400">{{ replyText.length }}/280</span>
+            <div class="flex items-center gap-2">
+              <label data-testid="reply-image-btn" class="cursor-pointer text-sky-500 hover:text-sky-600 text-sm">
+                📷
+                <input
+                  data-testid="reply-image-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  class="hidden"
+                  @change="onReplyImageChange"
+                />
+              </label>
+              <span class="text-xs text-gray-400">{{ replyText.length }}/280</span>
+            </div>
             <button
               :disabled="!replyText.trim() || submitting"
               data-testid="reply-submit"
@@ -97,6 +119,8 @@ const parent = ref<Tweet | null>(null)
 const replies = ref<Tweet[]>([])
 const replyText = ref('')
 const submitting = ref(false)
+const selectedReplyFile = ref<File | null>(null)
+const replyImagePreview = ref<string | null>(null)
 
 onMounted(async () => {
   const id = route.params.id as string
@@ -109,13 +133,29 @@ onMounted(async () => {
   }
 })
 
+function onReplyImageChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0] ?? null
+  selectedReplyFile.value = file
+  replyImagePreview.value = file ? URL.createObjectURL(file) : null
+}
+
+function clearReplyImage() {
+  selectedReplyFile.value = null
+  replyImagePreview.value = null
+}
+
 async function submitReply() {
   if (!replyText.value.trim() || !parent.value) return
   submitting.value = true
   try {
-    const reply = await tweetsApi.create({ text: replyText.value.trim(), parentId: parent.value.id })
+    let imageUrl: string | undefined
+    if (selectedReplyFile.value) {
+      imageUrl = await tweetsApi.uploadImage(selectedReplyFile.value)
+    }
+    const reply = await tweetsApi.create({ text: replyText.value.trim(), parentId: parent.value.id, imageUrl })
     replies.value = [...replies.value, reply]
     replyText.value = ''
+    clearReplyImage()
   } finally {
     submitting.value = false
   }
