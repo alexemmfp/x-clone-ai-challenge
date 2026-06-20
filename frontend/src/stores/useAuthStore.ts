@@ -47,7 +47,7 @@ export const useAuthStore = defineStore('auth', () => {
       const result = await authApi.refresh()
       setAuth(result.accessToken, { id: result.userId, username: result.username })
     } catch {
-      if (!user.value) clearAuth()
+      clearAuth()
     }
   }
 

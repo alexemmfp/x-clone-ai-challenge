@@ -77,11 +77,27 @@ describe('useAuthStore', () => {
     expect(auth.isAuthenticated).toBe(false)
   })
 
-  it('tryRefresh keeps auth on failure when user already set', async () => {
+  it('tryRefresh clears auth on failure regardless of prior state', async () => {
     vi.mocked(authApi.refresh).mockRejectedValue(new Error('401'))
     const auth = useAuthStore()
     auth.setAuth('old', { id: '1', username: 'alice' })
     await auth.tryRefresh()
+    expect(auth.isAuthenticated).toBe(false)
+  })
+
+  it('tryRefresh restores session after page reload (cookie still valid)', async () => {
+    vi.mocked(authApi.refresh).mockResolvedValue({
+      accessToken: 'restored_token',
+      refreshToken: '',
+      userId: 'u42',
+      username: 'carol',
+    })
+    const auth = useAuthStore()
+    // Simulate fresh store state (as after F5)
+    expect(auth.isAuthenticated).toBe(false)
+    await auth.tryRefresh()
     expect(auth.isAuthenticated).toBe(true)
+    expect(auth.accessToken).toBe('restored_token')
+    expect(auth.user?.username).toBe('carol')
   })
 })

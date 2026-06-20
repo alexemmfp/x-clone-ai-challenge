@@ -27,8 +27,14 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to) => {
+let refreshAttempted = false
+
+router.beforeEach(async (to) => {
   const auth = useAuthStore()
+  if (!refreshAttempted) {
+    refreshAttempted = true
+    await auth.tryRefresh()
+  }
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { name: 'login' }
   }
