@@ -38,4 +38,15 @@ internal sealed class UserRepository(AppDbContext db) : IUserRepository
             .Take(limit)
             .ToListAsync(ct);
     }
+
+    public async Task<IReadOnlySet<string>> GetExistingUsernamesAsync(
+        IEnumerable<string> usernames, CancellationToken ct = default)
+    {
+        var list = usernames.ToList();
+        var found = await db.Users
+            .Where(u => list.Contains(u.Username))
+            .Select(u => u.Username)
+            .ToListAsync(ct);
+        return new HashSet<string>(found, StringComparer.OrdinalIgnoreCase);
+    }
 }

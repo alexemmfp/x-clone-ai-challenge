@@ -7,6 +7,7 @@ using TwitterClone.Application.Auth.Commands;
 using TwitterClone.Application.Interfaces;
 using TwitterClone.Application.Profile.Commands;
 using TwitterClone.Application.Tweets.Commands;
+using TwitterClone.Application.Users.Queries;
 using TwitterClone.Infrastructure;
 using TwitterClone.Infrastructure.Hubs;
 using TwitterClone.Infrastructure.Persistence;
@@ -22,6 +23,7 @@ builder.Services.AddScoped<IValidator<RegisterCommand>, RegisterCommandValidator
 builder.Services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
 builder.Services.AddScoped<IValidator<CreateTweetCommand>, CreateTweetCommandValidator>();
 builder.Services.AddScoped<IValidator<UpdateProfileCommand>, UpdateProfileCommandValidator>();
+builder.Services.AddScoped<ValidateUsernamesHandler>();
 
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(opts =>
@@ -59,6 +61,7 @@ app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapAuthEndpoints();
 app.MapTweetEndpoints();
 app.MapSocialEndpoints();
+app.MapUserEndpoints();
 app.MapProfileEndpoints();
 app.MapHub<TimelineHub>("/hubs/timeline");
 app.MapMediaEndpoints();
