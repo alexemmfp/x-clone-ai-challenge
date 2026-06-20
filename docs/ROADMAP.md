@@ -52,7 +52,7 @@ Legend: `[ ]` todo · `[~]` en progreso (marcar al INICIAR, commitear inmediatam
 
 ## M9 — Extended features
 - [x] Fix reply composer: image upload support in ThreadView. — `feat(replies): image upload in reply composer` · [SPEC §reply-image](docs/SPEC.md#reply-image)
-- [ ] @mentions: parse `@username` in tweet/reply text, render as profile links. — `feat(mentions): clickable @mentions` · [SPEC §mentions](docs/SPEC.md#mentions)
+- [~] @mentions: parse `@username` in tweet/reply text, render as profile links. — `feat(mentions): clickable @mentions` · [SPEC §mentions](docs/SPEC.md#mentions)
 - [ ] Retweet / un-retweet + counter; retweeted posts appear in followers' timelines. — `feat(retweet): retweet and un-retweet` · [SPEC §retweet](docs/SPEC.md#retweet)
 
 ## M8 — Final polish
