@@ -5,7 +5,7 @@ using TwitterClone.Domain.Exceptions;
 
 namespace TwitterClone.Application.Profile.Commands;
 
-public sealed record UpdateProfileCommand(Guid UserId, string? Bio, string? AvatarUrl);
+public sealed record UpdateProfileCommand(Guid UserId, string? Bio, string? AvatarUrl, string? DisplayName = null);
 
 public sealed class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileCommand>
 {
@@ -13,6 +13,7 @@ public sealed class UpdateProfileCommandValidator : AbstractValidator<UpdateProf
     {
         RuleFor(x => x.Bio).MaximumLength(160).When(x => x.Bio is not null);
         RuleFor(x => x.AvatarUrl).MaximumLength(512).When(x => x.AvatarUrl is not null);
+        RuleFor(x => x.DisplayName).MaximumLength(50).When(x => x.DisplayName is not null);
     }
 }
 
@@ -23,7 +24,7 @@ public sealed class UpdateProfileHandler(IUserRepository users, IFollowRepositor
         var user = await users.GetByIdAsync(cmd.UserId, ct)
             ?? throw new DomainException("User not found.");
 
-        user.UpdateProfile(cmd.Bio, cmd.AvatarUrl);
+        user.UpdateProfile(cmd.Bio, cmd.AvatarUrl, cmd.DisplayName);
         await uow.SaveChangesAsync(ct);
 
         var followerCount = await follows.CountFollowersAsync(user.Id, ct);

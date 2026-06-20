@@ -18,6 +18,7 @@ public sealed class GetTweetHandler(ITweetRepository tweets, IUserRepository use
         var author = await users.GetByIdAsync(tweet.AuthorId, ct);
         var likeCount = await likes.CountAsync(tweet.Id, ct);
         var likedByViewer = await likes.GetAsync(query.ViewerId, tweet.Id, ct) is not null;
+        var replyCount = await tweets.GetReplyCountAsync(tweet.Id, ct);
 
         return new TweetDto(
             tweet.Id,
@@ -28,6 +29,9 @@ public sealed class GetTweetHandler(ITweetRepository tweets, IUserRepository use
             tweet.ImageUrl,
             tweet.CreatedAt,
             likeCount,
-            likedByViewer);
+            likedByViewer,
+            replyCount,
+            AuthorDisplayName: author?.DisplayName,
+            AuthorAvatarUrl: author?.AvatarUrl);
     }
 }

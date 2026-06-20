@@ -9,4 +9,5 @@ public interface ITweetRepository
     Task RemoveAsync(Tweet tweet, CancellationToken ct = default);
     Task<IReadOnlyList<Tweet>> GetTimelineAsync(Guid userId, int page, int pageSize, CancellationToken ct = default);
     Task<IReadOnlyList<Tweet>> GetRepliesAsync(Guid parentId, CancellationToken ct = default);
+    Task<int> GetReplyCountAsync(Guid tweetId, CancellationToken ct = default);
 }

@@ -46,7 +46,7 @@ internal static class ProfileEndpoints
             return Results.Unauthorized();
         }
 
-        var cmd = new UpdateProfileCommand(userId, req.Bio, req.AvatarUrl);
+        var cmd = new UpdateProfileCommand(userId, req.Bio, req.AvatarUrl, req.DisplayName);
         var result = await validator.ValidateAsync(cmd, ct);
         if (!result.IsValid)
         {
@@ -71,5 +71,5 @@ internal static class ProfileEndpoints
         return Results.Ok(results);
     }
 
-    private sealed record UpdateProfileRequest(string? Bio, string? AvatarUrl);
+    private sealed record UpdateProfileRequest(string? Bio, string? AvatarUrl, string? DisplayName);
 }

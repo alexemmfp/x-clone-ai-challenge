@@ -41,4 +41,7 @@ internal sealed class TweetRepository(AppDbContext db) : ITweetRepository
             .Where(t => t.ParentId == parentId)
             .OrderBy(t => t.CreatedAt)
             .ToListAsync(ct);
+
+    public Task<int> GetReplyCountAsync(Guid tweetId, CancellationToken ct = default) =>
+        db.Tweets.CountAsync(t => t.ParentId == tweetId, ct);
 }

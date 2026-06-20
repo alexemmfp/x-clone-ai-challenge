@@ -12,13 +12,13 @@ public sealed class GetRepliesHandler(ITweetRepository tweets, IUserRepository u
         var replies = await tweets.GetRepliesAsync(query.ParentId, ct);
 
         var authorIds = replies.Select(t => t.AuthorId).Distinct().ToList();
-        var authorMap = new Dictionary<Guid, string>();
+        var authorMap = new Dictionary<Guid, (string Username, string? DisplayName, string? AvatarUrl)>();
         foreach (var id in authorIds)
         {
             var user = await users.GetByIdAsync(id, ct);
             if (user is not null)
             {
-                authorMap[id] = user.Username;
+                authorMap[id] = (user.Username, user.DisplayName, user.AvatarUrl);
             }
         }
 
@@ -27,16 +27,22 @@ public sealed class GetRepliesHandler(ITweetRepository tweets, IUserRepository u
         {
             var likeCount = await likes.CountAsync(t.Id, ct);
             var likedByViewer = await likes.GetAsync(query.ViewerId, t.Id, ct) is not null;
+            var replyCount = await tweets.GetReplyCountAsync(t.Id, ct);
+            var (username, displayName, avatarUrl) = authorMap.TryGetValue(t.AuthorId, out var info)
+                ? info : ("unknown", null, null);
             result.Add(new TweetDto(
                 t.Id,
                 t.AuthorId,
-                authorMap.TryGetValue(t.AuthorId, out var u) ? u : "unknown",
+                username,
                 t.Text,
                 t.ParentId,
                 t.ImageUrl,
                 t.CreatedAt,
                 likeCount,
-                likedByViewer));
+                likedByViewer,
+                replyCount,
+                AuthorDisplayName: displayName,
+                AuthorAvatarUrl: avatarUrl));
         }
 
         return result;

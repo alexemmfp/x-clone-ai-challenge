@@ -10,6 +10,7 @@ public class User
     public string PasswordHash { get; private set; } = default!;
     public string? Bio { get; private set; }
     public string? AvatarUrl { get; private set; }
+    public string? DisplayName { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
     private User() { }
@@ -41,9 +42,10 @@ public class User
         };
     }
 
-    public void UpdateProfile(string? bio, string? avatarUrl)
+    public void UpdateProfile(string? bio, string? avatarUrl, string? displayName = null)
     {
         Bio = bio;
         AvatarUrl = avatarUrl;
+        DisplayName = displayName;
     }
 }
