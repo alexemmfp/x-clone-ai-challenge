@@ -89,6 +89,9 @@
             <span class="text-xs text-gray-400">{{ formatDate(reply.createdAt) }}</span>
           </div>
           <MentionText :text="reply.text" class="text-gray-800 text-sm whitespace-pre-wrap" />
+          <a v-if="reply.imageUrl" :href="reply.imageUrl" target="_blank" rel="noopener">
+            <img :src="reply.imageUrl" class="rounded-lg max-h-64 object-cover w-full hover:opacity-90 transition" alt="reply image" />
+          </a>
           <div class="flex items-center gap-4">
             <button
               class="flex items-center gap-1 transition min-h-[44px] text-xs"

@@ -29,7 +29,7 @@ internal sealed class TweetRepository(AppDbContext db) : ITweetRepository
         followedIds.Add(userId);
 
         return await db.Tweets
-            .Where(t => followedIds.Contains(t.AuthorId))
+            .Where(t => followedIds.Contains(t.AuthorId) && t.ParentId == null)
             .OrderByDescending(t => t.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
