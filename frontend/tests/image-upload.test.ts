@@ -70,6 +70,9 @@ describe('Image upload in composer', () => {
       likedByViewer: false,
       retweetCount: 0,
       retweetedByViewer: false,
+      replyCount: 0,
+      authorDisplayName: null,
+      authorAvatarUrl: null,
     })
 
     const wrapper = mountHome()
@@ -105,6 +108,9 @@ describe('Image upload in composer', () => {
       likedByViewer: false,
       retweetCount: 0,
       retweetedByViewer: false,
+      replyCount: 0,
+      authorDisplayName: null,
+      authorAvatarUrl: null,
     })
 
     const wrapper = mountHome()

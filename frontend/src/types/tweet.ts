@@ -12,6 +12,9 @@ export interface Tweet {
   retweetedByViewer: boolean
   isRetweet?: boolean
   retweetedByUsername?: string
+  replyCount: number
+  authorDisplayName: string | null
+  authorAvatarUrl: string | null
 }
 
 export interface CreateTweetRequest {

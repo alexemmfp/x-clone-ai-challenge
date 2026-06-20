@@ -9,17 +9,31 @@
         <!-- Parent tweet -->
         <article class="bg-white rounded-2xl shadow p-4 space-y-2">
           <div class="flex items-center justify-between">
-            <RouterLink
-              :to="`/profile/${parent.authorUsername}`"
-              class="font-semibold text-sm text-gray-900 hover:underline"
-            >@{{ parent.authorUsername }}</RouterLink>
-            <span class="text-xs text-gray-400">{{ formatDate(parent.createdAt) }}</span>
+            <div class="flex items-center gap-2 min-w-0">
+              <RouterLink :to="`/profile/${parent.authorUsername}`" class="flex-shrink-0">
+                <img v-if="parent.authorAvatarUrl" :src="parent.authorAvatarUrl"
+                     class="w-8 h-8 rounded-full object-cover" alt="avatar" />
+                <span v-else class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                  </svg>
+                </span>
+              </RouterLink>
+              <div class="min-w-0">
+                <RouterLink :to="`/profile/${parent.authorUsername}`" class="font-semibold text-sm text-gray-900 hover:underline block truncate">
+                  {{ parent.authorDisplayName ?? parent.authorUsername }}
+                </RouterLink>
+                <span class="text-xs text-gray-400">@{{ parent.authorUsername }}</span>
+              </div>
+            </div>
+            <span class="text-xs text-gray-400 flex-shrink-0">{{ formatDate(parent.createdAt) }}</span>
           </div>
           <MentionText :text="parent.text" class="text-gray-800 text-sm md:text-base whitespace-pre-wrap" />
           <a v-if="parent.imageUrl" :href="parent.imageUrl" target="_blank" rel="noopener">
             <img :src="parent.imageUrl" class="rounded-lg max-w-full object-contain" alt="tweet image" />
           </a>
           <div class="flex items-center gap-4">
+            <span class="flex items-center gap-1 text-xs text-gray-400 min-h-[44px]">💬 {{ parent.replyCount }}</span>
             <button
               class="flex items-center gap-1 transition min-h-[44px] text-xs"
               :class="parent.likedByViewer ? 'text-rose-500' : 'text-gray-400 hover:text-rose-400'"
@@ -82,11 +96,24 @@
           class="bg-white rounded-2xl shadow p-3 sm:p-4 space-y-2 ml-4 border-l-2 border-sky-200"
         >
           <div class="flex items-center justify-between">
-            <RouterLink
-              :to="`/profile/${reply.authorUsername}`"
-              class="font-semibold text-sm text-gray-900 hover:underline"
-            >@{{ reply.authorUsername }}</RouterLink>
-            <span class="text-xs text-gray-400">{{ formatDate(reply.createdAt) }}</span>
+            <div class="flex items-center gap-2 min-w-0">
+              <RouterLink :to="`/profile/${reply.authorUsername}`" class="flex-shrink-0">
+                <img v-if="reply.authorAvatarUrl" :src="reply.authorAvatarUrl"
+                     class="w-8 h-8 rounded-full object-cover" alt="avatar" />
+                <span v-else class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                  </svg>
+                </span>
+              </RouterLink>
+              <div class="min-w-0">
+                <RouterLink :to="`/profile/${reply.authorUsername}`" class="font-semibold text-sm text-gray-900 hover:underline block truncate">
+                  {{ reply.authorDisplayName ?? reply.authorUsername }}
+                </RouterLink>
+                <span class="text-xs text-gray-400">@{{ reply.authorUsername }}</span>
+              </div>
+            </div>
+            <span class="text-xs text-gray-400 flex-shrink-0">{{ formatDate(reply.createdAt) }}</span>
           </div>
           <MentionText :text="reply.text" class="text-gray-800 text-sm whitespace-pre-wrap" />
           <a v-if="reply.imageUrl" :href="reply.imageUrl" target="_blank" rel="noopener">

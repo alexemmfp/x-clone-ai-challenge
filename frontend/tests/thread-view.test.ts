@@ -44,6 +44,9 @@ const parentTweet = {
   likedByViewer: false,
   retweetCount: 0,
   retweetedByViewer: false,
+  replyCount: 0,
+  authorDisplayName: null,
+  authorAvatarUrl: null,
 }
 
 const replyTweet = {
@@ -58,6 +61,9 @@ const replyTweet = {
   likedByViewer: false,
   retweetCount: 0,
   retweetedByViewer: false,
+  replyCount: 0,
+  authorDisplayName: null,
+  authorAvatarUrl: null,
 }
 
 function mountThread(tweetId = 'parent-1') {

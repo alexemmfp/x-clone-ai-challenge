@@ -43,6 +43,9 @@ const tweet = {
   likedByViewer: false,
   retweetCount: 3,
   retweetedByViewer: false,
+  replyCount: 0,
+  authorDisplayName: null,
+  authorAvatarUrl: null,
 }
 
 function mountHome() {
