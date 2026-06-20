@@ -97,7 +97,7 @@
         <button
           class="text-sm text-sky-500 hover:underline"
           :disabled="tweets.loading"
-          @click="tweets.loadTimeline()"
+          @click="loadMore()"
         >
           {{ tweets.loading ? 'Loading…' : 'Load more' }}
         </button>
@@ -168,5 +168,14 @@ function formatDate(iso: string) {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+async function loadMore() {
+  const before = tweets.timeline.length
+  await tweets.loadTimeline()
+  const newTweets = tweets.timeline.slice(before)
+  const mentions = newTweets.flatMap((t) => [...t.text.matchAll(/@(\w+)/g)].map((m) => m[1]))
+  const unique = [...new Set(mentions)]
+  if (unique.length) mentionsStore.validateBatch(unique)
 }
 </script>
