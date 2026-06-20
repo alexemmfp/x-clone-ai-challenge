@@ -15,7 +15,7 @@
             >@{{ parent.authorUsername }}</RouterLink>
             <span class="text-xs text-gray-400">{{ formatDate(parent.createdAt) }}</span>
           </div>
-          <p class="text-gray-800 text-sm md:text-base whitespace-pre-wrap">{{ parent.text }}</p>
+          <MentionText :text="parent.text" class="text-gray-800 text-sm md:text-base whitespace-pre-wrap" />
           <a v-if="parent.imageUrl" :href="parent.imageUrl" target="_blank" rel="noopener">
             <img :src="parent.imageUrl" class="rounded-lg max-w-full object-contain" alt="tweet image" />
           </a>
@@ -88,7 +88,7 @@
             >@{{ reply.authorUsername }}</RouterLink>
             <span class="text-xs text-gray-400">{{ formatDate(reply.createdAt) }}</span>
           </div>
-          <p class="text-gray-800 text-sm whitespace-pre-wrap">{{ reply.text }}</p>
+          <MentionText :text="reply.text" class="text-gray-800 text-sm whitespace-pre-wrap" />
           <div class="flex items-center gap-4">
             <button
               class="flex items-center gap-1 transition min-h-[44px] text-xs"
@@ -112,8 +112,11 @@ import { useRoute, RouterLink } from 'vue-router'
 import { tweetsApi } from '@/api/tweets'
 import { socialApi } from '@/api/social'
 import type { Tweet } from '@/types/tweet'
+import MentionText from '@/components/MentionText.vue'
+import { useMentionsStore } from '@/stores/useMentionsStore'
 
 const route = useRoute()
+const mentionsStore = useMentionsStore()
 const loading = ref(true)
 const parent = ref<Tweet | null>(null)
 const replies = ref<Tweet[]>([])
@@ -128,6 +131,10 @@ onMounted(async () => {
     const [tweet, reps] = await Promise.all([tweetsApi.getById(id), tweetsApi.getReplies(id)])
     parent.value = tweet
     replies.value = reps
+    const allText = [tweet.text, ...reps.map((r) => r.text)]
+    const mentions = allText.flatMap((t) => [...t.matchAll(/@(\w+)/g)].map((m) => m[1]))
+    const unique = [...new Set(mentions)]
+    if (unique.length) mentionsStore.validateBatch(unique)
   } finally {
     loading.value = false
   }

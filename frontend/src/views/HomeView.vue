@@ -70,9 +70,11 @@
           <span class="text-xs text-gray-400">{{ formatDate(tweet.createdAt) }}</span>
         </div>
         <RouterLink :to="`/tweet/${tweet.id}`">
-          <p class="text-gray-800 text-sm md:text-base whitespace-pre-wrap hover:text-sky-700 transition">{{ tweet.text }}</p>
+          <MentionText :text="tweet.text" class="text-gray-800 text-sm md:text-base whitespace-pre-wrap hover:text-sky-700 transition" />
         </RouterLink>
-        <img v-if="tweet.imageUrl" :src="tweet.imageUrl" class="rounded-lg max-h-64 object-cover w-full" alt="tweet image" />
+        <a v-if="tweet.imageUrl" :href="tweet.imageUrl" target="_blank" rel="noopener">
+          <img :src="tweet.imageUrl" class="rounded-lg max-h-64 object-cover w-full hover:opacity-90 transition" alt="tweet image" />
+        </a>
         <div class="flex items-center gap-4">
           <button
             class="flex items-center gap-1 transition min-h-[44px] text-xs"
@@ -111,9 +113,12 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { useTweetStore } from '@/stores/useTweetStore'
 import { useTimelineHub } from '@/composables/useTimelineHub'
 import { tweetsApi } from '@/api/tweets'
+import MentionText from '@/components/MentionText.vue'
+import { useMentionsStore } from '@/stores/useMentionsStore'
 
 const auth = useAuthStore()
 const tweets = useTweetStore()
+const mentionsStore = useMentionsStore()
 
 const draftText = ref('')
 const posting = ref(false)
@@ -121,7 +126,13 @@ const selectedFile = ref<File | null>(null)
 const imagePreview = ref<string | null>(null)
 
 useTimelineHub((tweet) => tweets.prependTweet(tweet))
-onMounted(() => tweets.loadTimeline(true))
+onMounted(async () => {
+  await tweets.loadTimeline(true)
+  const allMentions = tweets.timeline
+    .flatMap((t) => [...t.text.matchAll(/@(\w+)/g)].map((m) => m[1]))
+  const unique = [...new Set(allMentions)]
+  if (unique.length) mentionsStore.validateBatch(unique)
+})
 
 function onFileChange(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0] ?? null
