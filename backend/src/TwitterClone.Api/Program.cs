@@ -24,6 +24,8 @@ builder.Services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
 builder.Services.AddScoped<IValidator<CreateTweetCommand>, CreateTweetCommandValidator>();
 builder.Services.AddScoped<IValidator<UpdateProfileCommand>, UpdateProfileCommandValidator>();
 builder.Services.AddScoped<ValidateUsernamesHandler>();
+builder.Services.AddScoped<RetweetHandler>();
+builder.Services.AddScoped<UnretweetHandler>();
 
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(opts =>

@@ -9,6 +9,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Tweet> Tweets => Set<Tweet>();
     public DbSet<Follow> Follows => Set<Follow>();
     public DbSet<Like> Likes => Set<Like>();
+    public DbSet<Retweet> Retweets => Set<Retweet>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
