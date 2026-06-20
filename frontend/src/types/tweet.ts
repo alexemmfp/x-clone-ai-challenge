@@ -8,6 +8,10 @@ export interface Tweet {
   createdAt: string
   likeCount: number
   likedByViewer: boolean
+  retweetCount: number
+  retweetedByViewer: boolean
+  isRetweet?: boolean
+  retweetedByUsername?: string
 }
 
 export interface CreateTweetRequest {

@@ -16,7 +16,12 @@ vi.mock('@/api/tweets', () => ({
 }))
 
 vi.mock('@/api/social', () => ({
-  socialApi: { likeTweet: vi.fn(), unlikeTweet: vi.fn() },
+  socialApi: {
+    likeTweet: vi.fn(),
+    unlikeTweet: vi.fn(),
+    retweet: vi.fn(),
+    unretweet: vi.fn(),
+  },
 }))
 
 vi.mock('@/composables/useTimelineHub', () => ({
@@ -63,6 +68,8 @@ describe('Image upload in composer', () => {
       createdAt: new Date().toISOString(),
       likeCount: 0,
       likedByViewer: false,
+      retweetCount: 0,
+      retweetedByViewer: false,
     })
 
     const wrapper = mountHome()
@@ -96,6 +103,8 @@ describe('Image upload in composer', () => {
       createdAt: new Date().toISOString(),
       likeCount: 0,
       likedByViewer: false,
+      retweetCount: 0,
+      retweetedByViewer: false,
     })
 
     const wrapper = mountHome()

@@ -13,4 +13,8 @@ export const socialApi = {
 
   likeTweet: (tweetId: string) => apiClient.post(`/api/tweets/${tweetId}/like`),
   unlikeTweet: (tweetId: string) => apiClient.delete(`/api/tweets/${tweetId}/like`),
+
+  retweet: (tweetId: string) =>
+    apiClient.post<{ retweetCount: number }>(`/api/tweets/${tweetId}/retweet`).then((r) => r.data),
+  unretweet: (tweetId: string) => apiClient.delete(`/api/tweets/${tweetId}/retweet`),
 }

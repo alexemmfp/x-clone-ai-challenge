@@ -56,9 +56,11 @@
         Nothing here yet. Follow someone or post your first tweet!
       </div>
 
+      <template v-for="tweet in tweets.timeline" :key="tweet.id">
+      <div v-if="tweet.isRetweet" class="text-xs text-gray-400 px-2 -mb-2">
+        🔁 @{{ tweet.retweetedByUsername }} retweeted
+      </div>
       <article
-        v-for="tweet in tweets.timeline"
-        :key="tweet.id"
         class="bg-white rounded-2xl shadow p-3 sm:p-4 space-y-2 cursor-pointer hover:bg-gray-50 transition"
         @click.self="$router.push(`/tweet/${tweet.id}`)"
       >
@@ -84,6 +86,13 @@
             ♥ {{ tweet.likeCount }}
           </button>
           <button
+            class="flex items-center gap-1 transition min-h-[44px] text-xs"
+            :class="tweet.retweetedByViewer ? 'text-green-500' : 'text-gray-400 hover:text-green-400'"
+            @click="toggleRetweet(tweet)"
+          >
+            🔁 {{ tweet.retweetCount }}
+          </button>
+          <button
             v-if="tweet.authorId === auth.user?.id"
             class="text-xs text-red-400 hover:text-red-600 transition ml-auto min-h-[44px]"
             @click="tweets.deleteTweet(tweet.id)"
@@ -92,6 +101,7 @@
           </button>
         </div>
       </article>
+      </template>
 
       <div v-if="tweets.hasMore && tweets.timeline.length > 0" class="text-center">
         <button
@@ -113,6 +123,8 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { useTweetStore } from '@/stores/useTweetStore'
 import { useTimelineHub } from '@/composables/useTimelineHub'
 import { tweetsApi } from '@/api/tweets'
+import { socialApi } from '@/api/social'
+import type { Tweet } from '@/types/tweet'
 import MentionText from '@/components/MentionText.vue'
 import { useMentionsStore } from '@/stores/useMentionsStore'
 
@@ -168,6 +180,18 @@ function formatDate(iso: string) {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+async function toggleRetweet(tweet: Tweet) {
+  if (tweet.retweetedByViewer) {
+    await socialApi.unretweet(tweet.id)
+    tweet.retweetCount--
+    tweet.retweetedByViewer = false
+  } else {
+    const result = await socialApi.retweet(tweet.id)
+    tweet.retweetCount = result.retweetCount
+    tweet.retweetedByViewer = true
+  }
 }
 
 async function loadMore() {

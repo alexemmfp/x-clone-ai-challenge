@@ -19,6 +19,8 @@ vi.mock('@/api/social', () => ({
   socialApi: {
     likeTweet: vi.fn(),
     unlikeTweet: vi.fn(),
+    retweet: vi.fn(),
+    unretweet: vi.fn(),
   },
 }))
 
@@ -40,6 +42,8 @@ const parentTweet = {
   createdAt: new Date().toISOString(),
   likeCount: 0,
   likedByViewer: false,
+  retweetCount: 0,
+  retweetedByViewer: false,
 }
 
 const replyTweet = {
@@ -52,6 +56,8 @@ const replyTweet = {
   createdAt: new Date().toISOString(),
   likeCount: 0,
   likedByViewer: false,
+  retweetCount: 0,
+  retweetedByViewer: false,
 }
 
 function mountThread(tweetId = 'parent-1') {
