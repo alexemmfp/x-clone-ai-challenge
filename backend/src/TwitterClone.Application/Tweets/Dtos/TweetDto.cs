@@ -9,4 +9,8 @@ public sealed record TweetDto(
     string? ImageUrl,
     DateTime CreatedAt,
     int LikeCount = 0,
-    bool LikedByViewer = false);
+    bool LikedByViewer = false,
+    int RetweetCount = 0,
+    bool RetweetedByViewer = false,
+    bool IsRetweet = false,
+    string? RetweetedByUsername = null);
