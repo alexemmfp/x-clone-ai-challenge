@@ -1,17 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <div class="max-w-xl md:max-w-2xl mx-auto py-6 px-4 md:px-6 space-y-4">
-      <!-- Header -->
-      <div class="flex items-center justify-between">
-        <h1 class="text-xl font-bold text-gray-900">Home</h1>
-        <button
-          class="text-sm text-gray-500 hover:text-red-500 transition"
-          @click="auth.logout()"
-        >
-          Sign out
-        </button>
-      </div>
-
       <!-- Composer -->
       <div class="bg-white rounded-2xl shadow p-4 space-y-3">
         <textarea
