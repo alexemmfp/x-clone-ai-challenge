@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using TwitterClone.Application.Interfaces;
 using TwitterClone.Application.Social.Commands;
+using TwitterClone.Application.Tweets.Commands;
 
 namespace TwitterClone.Api.Endpoints;
 
@@ -13,6 +15,8 @@ internal static class SocialEndpoints
         group.MapDelete("/users/{username}/follow", UnfollowAsync);
         group.MapPost("/tweets/{id:guid}/like", LikeAsync);
         group.MapDelete("/tweets/{id:guid}/like", UnlikeAsync);
+        group.MapPost("/tweets/{id:guid}/retweet", RetweetAsync);
+        group.MapDelete("/tweets/{id:guid}/retweet", UnretweetAsync);
 
         return app;
     }
@@ -94,6 +98,48 @@ internal static class SocialEndpoints
         }
 
         await handler.HandleAsync(new UnlikeCommand(userId.Value, id), ct);
+        return Results.NoContent();
+    }
+
+    private static async Task<IResult> RetweetAsync(
+        Guid id,
+        RetweetHandler handler,
+        IRetweetRepository retweetRepo,
+        HttpContext ctx,
+        CancellationToken ct)
+    {
+        var userId = GetUserId(ctx);
+        if (userId is null)
+        {
+            return Results.Unauthorized();
+        }
+
+        try
+        {
+            await handler.HandleAsync(new RetweetCommand(userId.Value, id), ct);
+        }
+        catch (TwitterClone.Domain.Exceptions.DomainException ex)
+        {
+            return Results.BadRequest(new { error = ex.Message });
+        }
+
+        var count = await retweetRepo.CountAsync(id, ct);
+        return Results.Ok(new { retweetCount = count });
+    }
+
+    private static async Task<IResult> UnretweetAsync(
+        Guid id,
+        UnretweetHandler handler,
+        HttpContext ctx,
+        CancellationToken ct)
+    {
+        var userId = GetUserId(ctx);
+        if (userId is null)
+        {
+            return Results.Unauthorized();
+        }
+
+        await handler.HandleAsync(new UnretweetCommand(userId.Value, id), ct);
         return Results.NoContent();
     }
 
