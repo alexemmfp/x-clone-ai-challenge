@@ -72,5 +72,14 @@ Attach one image to a tweet. Store on local volume or S3-compatible storage.
 - **No squash.** Code on `main`.
 - Logical commit progression: scaffolding → features → tests alongside → polish.
 
+### Reply with image {#reply-image}
+Reply composer supports attaching one image, same flow as tweet composer.
+
+### @mentions {#mentions}
+Typing `@username` in tweet/reply text is stored as-is. Mentions render as clickable links to that user's profile. No notifications required.
+
+### Retweet {#retweet}
+One-click retweet of another user's tweet. Retweets appear in the retweeter's followers' timelines attributed to the original author. Un-retweet removes it. Counter shown on tweet.
+
 ## Out of scope (unless added to this file)
-Retweets/quotes, DMs, hashtags/trends, bookmarks, lists, multi-image, video, moderation, admin panel.
+Quote-tweets, DMs, hashtags/trends, bookmarks, lists, multi-image, video, moderation, admin panel.
