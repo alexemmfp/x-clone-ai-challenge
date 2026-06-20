@@ -56,8 +56,8 @@ Legend: `[ ]` todo · `[~]` en progreso (marcar al INICIAR, commitear inmediatam
 - [x] Retweet / un-retweet + counter; retweeted posts appear in followers' timelines. — `feat(retweet): retweet and un-retweet` · [SPEC §retweet](docs/SPEC.md#retweet)
 
 ## M10 — Tweet card UX
-- [~] Reply counter (💬) on tweet cards alongside retweet and like counters. — `feat(tweets): reply count on tweet cards`
-- [ ] User avatar + display name before @username on tweet cards (default icon if no avatar). — `feat(profile): display name and avatar on tweet cards`
+- [x] Reply counter (💬) on tweet cards alongside retweet and like counters. — `feat(tweets): reply count on tweet cards`
+- [x] User avatar + display name before @username on tweet cards (default icon if no avatar). — `feat(profile): display name and avatar on tweet cards`
 
 ## M8 — Final polish
 - [x] Coverage audit ≥85%, remove dead code, consistent naming. — `refactor: cleanup and coverage audit`
