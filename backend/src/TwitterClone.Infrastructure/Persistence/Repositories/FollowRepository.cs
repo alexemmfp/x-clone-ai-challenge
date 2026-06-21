@@ -29,4 +29,16 @@ internal sealed class FollowRepository(AppDbContext db) : IFollowRepository
 
     public async Task<IReadOnlyList<Guid>> GetFollowingIdsAsync(Guid userId, CancellationToken ct = default) =>
         await db.Follows.Where(f => f.FollowerId == userId).Select(f => f.FolloweeId).ToListAsync(ct);
+
+    public async Task<IReadOnlyList<User>> GetFollowerUsersAsync(Guid userId, CancellationToken ct = default) =>
+        await db.Follows
+            .Where(f => f.FolloweeId == userId)
+            .Join(db.Users, f => f.FollowerId, u => u.Id, (_, u) => u)
+            .ToListAsync(ct);
+
+    public async Task<IReadOnlyList<User>> GetFollowingUsersAsync(Guid userId, CancellationToken ct = default) =>
+        await db.Follows
+            .Where(f => f.FollowerId == userId)
+            .Join(db.Users, f => f.FolloweeId, u => u.Id, (_, u) => u)
+            .ToListAsync(ct);
 }

@@ -3,6 +3,7 @@ using FluentValidation;
 using TwitterClone.Application.Profile.Commands;
 using TwitterClone.Application.Profile.Queries;
 using TwitterClone.Application.Search.Queries;
+using TwitterClone.Application.Social.Queries;
 
 namespace TwitterClone.Api.Endpoints;
 
@@ -11,6 +12,8 @@ internal static class ProfileEndpoints
     public static IEndpointRouteBuilder MapProfileEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/users/{username}", GetProfileAsync);
+        app.MapGet("/api/users/{username}/followers", GetFollowersAsync);
+        app.MapGet("/api/users/{username}/following", GetFollowingAsync);
         app.MapGet("/api/search/users", SearchUsersAsync).RequireAuthorization();
         app.MapPatch("/api/me", UpdateProfileAsync).RequireAuthorization();
 
@@ -69,6 +72,24 @@ internal static class ProfileEndpoints
 
         var results = await handler.HandleAsync(new SearchUsersQuery(q), ct);
         return Results.Ok(results);
+    }
+
+    private static async Task<IResult> GetFollowersAsync(
+        string username,
+        GetFollowListHandler handler,
+        CancellationToken ct)
+    {
+        var list = await handler.HandleAsync(new GetFollowListQuery(username, Followers: true), ct);
+        return Results.Ok(list);
+    }
+
+    private static async Task<IResult> GetFollowingAsync(
+        string username,
+        GetFollowListHandler handler,
+        CancellationToken ct)
+    {
+        var list = await handler.HandleAsync(new GetFollowListQuery(username, Followers: false), ct);
+        return Results.Ok(list);
     }
 
     private sealed record UpdateProfileRequest(string? Bio, string? AvatarUrl, string? DisplayName);

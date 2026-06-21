@@ -68,6 +68,11 @@ Legend: `[ ]` todo · `[~]` en progreso (marcar al INICIAR, commitear inmediatam
 ## M13 — @mention autocomplete
 - [x] Autocomplete dropdown when typing @word in tweet/reply composers: debounced search, shows avatar + name, inserts on click/Esc closes. — `feat(ux): @mention autocomplete in composers`
 
+## M14 — Mandatory feature gaps (audit 2026-06-20)
+- [x] Avatar placeholder + edit bio/avatar UI in ProfileView (own profile gets inline edit form; PATCH /api/me already exists). — `feat(profile): avatar display and edit bio ui`
+- [x] Followers / following lists in ProfileView: clickable list of users (backend endpoints needed: GET /api/users/{username}/followers + /following). — `feat(profile): followers and following lists`
+- [x] Search UI: search bar in SideNav/HomeView + results panel linking to profiles. — `feat(search): user search ui`
+
 ## M8 — Final polish
 - [x] Coverage audit ≥85%, remove dead code, consistent naming. — `refactor: cleanup and coverage audit`
 - [x] Final docs pass (decisions, trade-offs, AI usage). — `docs: architecture decisions and trade-offs`

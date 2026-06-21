@@ -5,6 +5,7 @@ using TwitterClone.Application.Profile.Commands;
 using TwitterClone.Application.Profile.Queries;
 using TwitterClone.Application.Search.Queries;
 using TwitterClone.Application.Social.Commands;
+using TwitterClone.Application.Social.Queries;
 using TwitterClone.Application.Tweets.Commands;
 using TwitterClone.Application.Tweets.Queries;
 
@@ -33,6 +34,7 @@ public static class DependencyInjection
 
         services.AddScoped<GetProfileHandler>();
         services.AddScoped<UpdateProfileHandler>();
+        services.AddScoped<GetFollowListHandler>();
         services.AddScoped<SearchUsersHandler>();
 
         return services;
