@@ -28,33 +28,33 @@ public class DatabaseSeeder(AppDbContext db, IPasswordHasher passwordHasher)
 
         db.Users.AddRange(alice, bob, carol, dave, eve, frank, grace, henry, iris, jack);
 
-        // Tweets per user (3-5 each)
+        // Tweets per user (3-5 each); ~1/3 include images via picsum.photos deterministic seeds
         var aliceTweets = new[]
         {
-            Tweet.Create(alice.Id, "Just shipped a new feature using .NET 10 minimal APIs. The DX keeps getting better!"),
+            Tweet.Create(alice.Id, "Just shipped a new feature using .NET 10 minimal APIs. The DX keeps getting better!", imageUrl: "https://picsum.photos/seed/alice1/600/400"),
             Tweet.Create(alice.Id, "Hot take: Clean Architecture pays off after the first refactor, not before."),
-            Tweet.Create(alice.Id, "Morning coffee + a green CI pipeline = perfect start to the day."),
+            Tweet.Create(alice.Id, "Morning coffee + a green CI pipeline = perfect start to the day.", imageUrl: "https://picsum.photos/seed/alice3/600/400"),
             Tweet.Create(alice.Id, "Anyone else using Testcontainers for integration tests? Game changer."),
         };
 
         var bobTweets = new[]
         {
             Tweet.Create(bob.Id, "Reminder: nullable reference types are your friend, not your enemy."),
-            Tweet.Create(bob.Id, "Spent 2 hours debugging a timezone issue. UTC everywhere, always."),
+            Tweet.Create(bob.Id, "Spent 2 hours debugging a timezone issue. UTC everywhere, always.", imageUrl: "https://picsum.photos/seed/bob2/600/400"),
             Tweet.Create(bob.Id, "EF Core 10 performance improvements are real. Benchmarks don't lie."),
         };
 
         var carolTweets = new[]
         {
-            Tweet.Create(carol.Id, "Vue 3 + Pinia is such a satisfying combo. State management finally makes sense."),
+            Tweet.Create(carol.Id, "Vue 3 + Pinia is such a satisfying combo. State management finally makes sense.", imageUrl: "https://picsum.photos/seed/carol1/600/400"),
             Tweet.Create(carol.Id, "Tailwind JIT mode makes prototyping so fast it almost feels like cheating."),
             Tweet.Create(carol.Id, "TypeScript strict mode: painful for a day, saves you for a lifetime."),
-            Tweet.Create(carol.Id, "Just discovered Playwright. Writing E2E tests has never been this painless."),
+            Tweet.Create(carol.Id, "Just discovered Playwright. Writing E2E tests has never been this painless.", imageUrl: "https://picsum.photos/seed/carol4/600/400"),
         };
 
         var daveTweets = new[]
         {
-            Tweet.Create(dave.Id, "Docker compose makes onboarding new devs so much smoother."),
+            Tweet.Create(dave.Id, "Docker compose makes onboarding new devs so much smoother.", imageUrl: "https://picsum.photos/seed/dave1/600/400"),
             Tweet.Create(dave.Id, "PostgreSQL JSONB columns are underrated for semi-structured data."),
             Tweet.Create(dave.Id, "Wrote my first custom EF Core interceptor today. Surprisingly elegant."),
         };
@@ -62,14 +62,14 @@ public class DatabaseSeeder(AppDbContext db, IPasswordHasher passwordHasher)
         var eveTweets = new[]
         {
             Tweet.Create(eve.Id, "Commit early, commit often. Future you will thank present you."),
-            Tweet.Create(eve.Id, "Conventional Commits + semantic-release = automated changelogs. Zero effort."),
+            Tweet.Create(eve.Id, "Conventional Commits + semantic-release = automated changelogs. Zero effort.", imageUrl: "https://picsum.photos/seed/eve2/600/400"),
             Tweet.Create(eve.Id, "Code review tip: praise what is done well, not just what needs fixing."),
             Tweet.Create(eve.Id, "Hot take: the README is part of the product."),
         };
 
         var frankTweets = new[]
         {
-            Tweet.Create(frank.Id, "SignalR real-time updates feel magical compared to polling."),
+            Tweet.Create(frank.Id, "SignalR real-time updates feel magical compared to polling.", imageUrl: "https://picsum.photos/seed/frank1/600/400"),
             Tweet.Create(frank.Id, "BCrypt is slow by design. That's the point."),
             Tweet.Create(frank.Id, "JWT access token + httpOnly refresh cookie is the auth setup I keep coming back to."),
         };
@@ -77,14 +77,14 @@ public class DatabaseSeeder(AppDbContext db, IPasswordHasher passwordHasher)
         var graceTweets = new[]
         {
             Tweet.Create(grace.Id, "NetArchTest enforcing layer boundaries automatically is underappreciated."),
-            Tweet.Create(grace.Id, "FluentAssertions makes test failures actually readable."),
+            Tweet.Create(grace.Id, "FluentAssertions makes test failures actually readable.", imageUrl: "https://picsum.photos/seed/grace2/600/400"),
             Tweet.Create(grace.Id, "Coverage metrics are a floor, not a ceiling."),
             Tweet.Create(grace.Id, "Domain model with no external dependencies is a joy to test."),
         };
 
         var henryTweets = new[]
         {
-            Tweet.Create(henry.Id, "Vite dev server starts in under a second. Webpack who?"),
+            Tweet.Create(henry.Id, "Vite dev server starts in under a second. Webpack who?", imageUrl: "https://picsum.photos/seed/henry1/600/400"),
             Tweet.Create(henry.Id, "Composables over mixins. Always. No debate."),
             Tweet.Create(henry.Id, "Axios interceptors for token refresh: set it up once, forget about it."),
         };
@@ -92,14 +92,14 @@ public class DatabaseSeeder(AppDbContext db, IPasswordHasher passwordHasher)
         var irisTweets = new[]
         {
             Tweet.Create(iris.Id, "Mobile-first CSS is not just a buzzword. Start small and expand."),
-            Tweet.Create(iris.Id, "Accessibility is not a feature request. It is a requirement."),
+            Tweet.Create(iris.Id, "Accessibility is not a feature request. It is a requirement.", imageUrl: "https://picsum.photos/seed/iris2/600/400"),
             Tweet.Create(iris.Id, "Dark mode support in under 10 lines of Tailwind. I love CSS variables."),
-            Tweet.Create(iris.Id, "Component isolation + Vitest = fast, reliable UI tests."),
+            Tweet.Create(iris.Id, "Component isolation + Vitest = fast, reliable UI tests.", imageUrl: "https://picsum.photos/seed/iris4/600/400"),
         };
 
         var jackTweets = new[]
         {
-            Tweet.Create(jack.Id, "When in doubt, ship it and iterate. Perfect is the enemy of done."),
+            Tweet.Create(jack.Id, "When in doubt, ship it and iterate. Perfect is the enemy of done.", imageUrl: "https://picsum.photos/seed/jack1/600/400"),
             Tweet.Create(jack.Id, "Environment variables in .env.example: document your secrets without exposing them."),
             Tweet.Create(jack.Id, "The best architecture is the one your team can actually maintain."),
         };

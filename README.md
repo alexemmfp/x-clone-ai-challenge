@@ -1,24 +1,24 @@
 # Twitter Clone — The Flock Challenge
 
-Full-stack Twitter/X clone. .NET 10 Clean Architecture backend + Vue 3 + TypeScript frontend + PostgreSQL.
+Clon funcional de Twitter/X. Backend .NET 10 Clean Architecture + Frontend Vue 3 + TypeScript + PostgreSQL.
 
 ---
 
-## Prerequisites
+## Prerrequisitos
 
-| Tool | Version | Check |
+| Herramienta | Versión | Verificar |
 |---|---|---|
 | .NET SDK | **10.0.x** | `dotnet --version` |
 | Node.js | **20.x** | `node --version` |
-| Docker Desktop | **25+** (WSL2 backend on Windows) | `docker --version` |
+| Docker Desktop | **25+** (WSL2 en Windows) | `docker --version` |
 | PowerShell | **7+** | `pwsh --version` |
-| Git | any | `git --version` |
+| Git | cualquiera | `git --version` |
 
 ---
 
-## Quick Start (Docker — one command)
+## Inicio rápido (Docker — un comando)
 
-> Requires Docker Desktop running. Boots Postgres + API + frontend together.
+> Requiere Docker Desktop activo. Levanta Postgres + API + frontend juntos.
 
 ```bash
 git clone <repo-url> twitter_clone
@@ -26,35 +26,35 @@ cd twitter_clone
 docker compose up -d --build
 ```
 
-- Frontend: **http://localhost** (port 80)
+- Frontend: **http://localhost** (puerto 80)
 - API: **http://localhost:8080** — health: `GET /health`
 - Postgres: **localhost:5433**
 
-The API runs migrations and seeds demo data automatically on first start. Log in with `alice@example.com` / `Seed1234!`.
+La API corre las migraciones y el seed automáticamente al primer inicio. Credenciales: `alice@example.com` / `Seed1234!`.
 
 ---
 
-## Quick Start (local dev)
+## Inicio rápido (desarrollo local)
 
-All commands are copy-pasteable. Run them from the repo root unless noted.
+Todos los comandos son copy-pasteable. Ejecutar desde la raíz del repo salvo indicación.
 
-### 1 — Clone
+### 1 — Clonar
 
 ```bash
 git clone <repo-url> twitter_clone
 cd twitter_clone
 ```
 
-### 2 — Start PostgreSQL
+### 2 — Levantar PostgreSQL
 
 ```bash
 docker compose up -d postgres
 ```
 
-Postgres listens on **localhost:5433** (host port) → 5432 inside the container.
-Default credentials: user `twitter`, password `change-me-local-dev`, database `twitterclone`.
+Postgres escucha en **localhost:5433** (puerto host) → 5432 dentro del container.
+Credenciales por defecto: usuario `twitter`, password `change-me-local-dev`, base `twitterclone`.
 
-### 3 — Run database migrations
+### 3 — Correr migraciones
 
 ```powershell
 # PowerShell
@@ -66,9 +66,9 @@ dotnet ef database update --project backend/src/TwitterClone.Infrastructure --st
 dotnet ef database update --project backend/src/TwitterClone.Infrastructure --startup-project backend/src/TwitterClone.Api
 ```
 
-> `appsettings.Development.json` is already committed with the correct connection string (port 5433). No `.env` file is needed for the backend in development.
+> `appsettings.Development.json` ya está commiteado con el connection string correcto (puerto 5433). No se necesita archivo `.env` para el backend en desarrollo.
 
-### 4 — Start the backend
+### 4 — Levantar el backend
 
 ```powershell
 # PowerShell
@@ -81,24 +81,24 @@ dotnet run
 cd backend/src/TwitterClone.Api && dotnet run
 ```
 
-Backend listens on **http://localhost:5089**. Health check: `GET http://localhost:5089/health`.
+El backend escucha en **http://localhost:5089**. Health check: `GET http://localhost:5089/health`.
 
-### 5 — Configure the frontend environment
+### 5 — Configurar el entorno del frontend
 
-The frontend reads `VITE_API_BASE_URL` from a `.env.development` file. This file is **gitignored** — you must create it:
+El frontend lee `VITE_API_BASE_URL` de un archivo `.env.development`. Este archivo está en `.gitignore` — hay que crearlo:
 
 ```bash
-# from the repo root
+# desde la raíz del repo
 echo "VITE_API_BASE_URL=http://localhost:5089" > frontend/.env.development
 ```
 
-Or create `frontend/.env.development` manually with this content:
+O crear `frontend/.env.development` manualmente con este contenido:
 
 ```
 VITE_API_BASE_URL=http://localhost:5089
 ```
 
-### 6 — Start the frontend
+### 6 — Levantar el frontend
 
 ```bash
 cd frontend
@@ -106,15 +106,15 @@ npm install
 npm run dev
 ```
 
-Frontend listens on **http://localhost:5173**.
+El frontend escucha en **http://localhost:5173**.
 
-Open **http://localhost:5173** in your browser. You can register a new account or use the seed users below.
+Abrir **http://localhost:5173** en el navegador. Se puede registrar una cuenta nueva o usar los usuarios del seed.
 
 ---
 
-## Seed users
+## Seed de datos
 
-Ten demo accounts are pre-loaded. Password for all: **`Seed1234!`**
+Diez cuentas demo están pre-cargadas. Password para todas: **`Seed1234!`**
 
 | Username | Email |
 |---|---|
@@ -129,71 +129,121 @@ Ten demo accounts are pre-loaded. Password for all: **`Seed1234!`**
 | iris | iris@example.com |
 | jack | jack@example.com |
 
+El seed genera automáticamente tweets (con y sin imágenes), follows cruzados y likes entre usuarios. Se ejecuta solo al primer inicio (idempotente).
+
 ---
 
-## Running the test suite
+## Variables de entorno
+
+| Variable | Descripción | Valor ejemplo |
+|---|---|---|
+| `VITE_API_BASE_URL` | URL base de la API (solo frontend) | `http://localhost:5089` |
+
+El backend en desarrollo usa `appsettings.Development.json` (ya commiteado). Ver `.env.example` para Docker.
+
+---
+
+## Correr los tests
 
 ```powershell
-# Full suite (build + tests + lint + typecheck)
+# Suite completa (build + tests + lint + typecheck)
 pwsh scripts/check.ps1
 
-# Backend only
+# Solo backend
 pwsh scripts/check.ps1 -Backend
 
-# Frontend only
+# Solo frontend
 pwsh scripts/check.ps1 -Frontend
 ```
 
-Detailed logs are written to `.logs/`. The console shows a summary only.
+Los logs detallados se escriben en `.logs/`. La consola muestra solo un resumen.
 
-**Coverage** (≥85% target) is enforced on Linux/CI via `scripts/check.sh` (used by GitHub Actions). On Windows, Smart App Control can block DLL instrumentation — run `docker compose run --rm backend dotnet test /p:CollectCoverage=true /p:Threshold=85` to measure in a Linux container.
+**Coverage** (objetivo ≥85%) se enforce en Linux/CI via `scripts/check.sh` (GitHub Actions). En Windows, Smart App Control puede bloquear la instrumentación de DLLs — correr `docker compose run --rm backend dotnet test /p:CollectCoverage=true /p:Threshold=85` para medirlo en un container Linux.
 
-**80 backend tests**: 10 domain · 50 application · 3 architecture · 17 integration.
-
----
-
-## Implemented features
-
-- **Auth** — register, login, logout, JWT access token + silent refresh via httpOnly cookie
-- **Timeline** — chronological feed of tweets from followed users + own tweets
-- **Real-time timeline** — SignalR hub pushes new tweets to connected clients instantly
-- **Tweets** — create (280 chars), delete own tweets, reply threads (parentId)
-- **Follow / Unfollow** — follow or unfollow any user
-- **Likes** — like and unlike tweets with live counters
-- **Profile** — view any user's profile, follower/following counts; edit own bio
-- **User search** — search users by username or email
-- **Docker** — `docker compose up -d --build` boots the full stack (Postgres + API + web)
+**80 tests de backend**: 10 domain · 50 application · 3 architecture · 17 integration.
 
 ---
 
-## Architecture
+## Features implementadas
 
-Clean Architecture: `Domain → Application → Infrastructure + Api`. Dependencies point inward; Domain has zero external dependencies. Architecture boundaries are enforced at test-time by NetArchTest. See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for full rationale, layer responsibilities, and trade-offs.
-
----
-
-## Tech decisions
-
-- **Own auth** — JWT access token (Bearer, 15 min) + refresh token in httpOnly cookie (7 days). No third-party auth provider. Passwords hashed with BCrypt (work factor 11).
-- **SHA256 for refresh token hashing** — BCrypt is non-deterministic (random salt per call), so stored hashes can't be looked up by value. Refresh tokens are already high-entropy random strings; SHA256 determinism enables exact-match DB lookups without BCrypt's work factor overhead.
-- **Clean Architecture** — use-case classes in `Application`, domain rules in `Domain`, EF Core + repos in `Infrastructure`. Enforced by NetArchTest.
-- **EF Core + Testcontainers** — integration tests spin up a real PostgreSQL container so tests cover actual SQL and migrations, not mocks.
-- **Vue 3 + Pinia + Axios interceptor** — the Axios instance auto-refreshes the access token on 401 before retrying the original request; the user never sees a login redirect on token expiry.
-- **SignalR real-time** — `TimelineHub` broadcasts `TweetCreated` events to all connected clients. Interface (`ITimelineNotifier`) defined in Application; SignalR implementation in Infrastructure (dependency rule preserved).
-- **Tailwind mobile-first** — all views are responsive; the layout collapses to a single column on small screens.
-- **AI-assisted development** — Claude Code (Sonnet 4.6) wrote ~85% of code in pair-programming mode: the human wrote the CLAUDE.md constraints, reviewed diffs, and made architectural decisions; AI implemented handlers, tests, frontend components, and DevOps. All commits include `Co-Authored-By: Claude Sonnet 4.6`.
+- **Auth** — registro, login, logout, JWT access token + silent refresh via httpOnly cookie
+- **Timeline** — feed cronológico de tweets de usuarios seguidos + propios
+- **Timeline en tiempo real** — SignalR hub pushea nuevos tweets a clientes conectados instantáneamente
+- **Tweets** — crear (280 chars), eliminar propios, reply threads (parentId), imágenes adjuntas
+- **Follow / Unfollow** — seguir o dejar de seguir cualquier usuario
+- **Likes** — like y unlike en tweets con contadores en vivo
+- **Perfil** — ver perfil de cualquier usuario, lista de followers/following, editar bio y avatar propio
+- **Búsqueda de usuarios** — barra de búsqueda en sidebar con dropdown de resultados
+- **Retweets** — retweet y un-retweet con contador
+- **@menciones** — autocomplete al escribir @, renderiza como links a perfiles
+- **Notificaciones** — push en tiempo real para follows, likes y menciones via SignalR
+- **Docker** — `docker compose up -d --build` levanta todo el stack (Postgres + API + web)
 
 ---
 
-## Project layout
+## Arquitectura
+
+Clean Architecture: `Domain → Application → Infrastructure + Api`. Las dependencias apuntan hacia adentro; Domain no tiene dependencias externas. Los límites de capas se enforcan en test-time con NetArchTest. Ver [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) para la justificación completa, responsabilidades por capa y trade-offs.
+
+---
+
+## Decisiones técnicas
+
+- **Auth propio** — JWT access token (Bearer, 15 min) + refresh token en httpOnly cookie (7 días). Sin proveedores de terceros. Passwords hasheados con BCrypt (work factor 11).
+- **SHA256 para hashing del refresh token** — BCrypt es no-determinista (salt random por llamada), por lo que los hashes almacenados no se pueden buscar por valor. Los refresh tokens son strings aleatorios de alta entropía; el determinismo de SHA256 permite lookups exactos en la DB sin el overhead de BCrypt.
+- **Clean Architecture** — use cases en `Application`, reglas de dominio en `Domain`, EF Core + repos en `Infrastructure`. Enforced por NetArchTest.
+- **EF Core + Testcontainers** — los integration tests levantan un container real de PostgreSQL para cubrir SQL y migraciones reales, no mocks.
+- **Vue 3 + Pinia + Axios interceptor** — el interceptor de Axios auto-refresca el access token en 401 antes de reintentar el request original; el usuario nunca ve un redirect a login por expiración de token.
+- **SignalR real-time** — `TimelineHub` broadcast eventos `TweetCreated` a todos los clientes conectados. La interfaz (`ITimelineNotifier`) está definida en Application; la implementación con SignalR está en Infrastructure (regla de dependencia preservada).
+- **Tailwind mobile-first** — todas las vistas son responsive; el layout colapsa a columna única en pantallas pequeñas.
+- **Desarrollo asistido por AI** — Claude Code (Sonnet 4.6) escribió ~85% del código en modo pair-programming: el humano escribió las restricciones en CLAUDE.md, revisó los diffs y tomó decisiones arquitectónicas; la AI implementó handlers, tests, componentes frontend y DevOps. Todos los commits incluyen `Co-Authored-By: Claude Sonnet 4.6`.
+
+---
+
+## Timeline y grafo de follows
+
+**Grafo de follows — tabla `Follows`**
+
+```
+Follows { FollowerId (FK→Users), FolloweeId (FK→Users), CreatedAt }
+PK: (FollowerId, FolloweeId)
+```
+
+Un arco dirigido `(A → B)` significa "A sigue a B". Los follows mutuos son dos filas separadas. Los contadores de followers/following se calculan con queries `COUNT` sobre `FolloweeId` / `FollowerId` respectivamente; sin columnas de contador denormalizadas para mantener la consistencia simple.
+
+**Query del timeline**
+
+El home timeline muestra tweets de los usuarios que sigue el viewer, más los propios, ordenados por `CreatedAt DESC` con paginación por cursor (`createdAt + id` como cursor para evitar duplicados entre páginas):
+
+```sql
+SELECT t.* FROM Tweets t
+WHERE t.AuthorId IN (
+    SELECT FolloweeId FROM Follows WHERE FollowerId = @viewerId
+    UNION ALL SELECT @viewerId
+)
+AND t.ParentId IS NULL          -- excluye replies del feed principal
+ORDER BY t.CreatedAt DESC, t.Id DESC
+LIMIT @pageSize
+```
+
+Los retweets se almacenan como filas separadas en `Retweets { RetweeterId, TweetId }`. El handler del timeline obtiene tweets y retweets de usuarios seguidos, los combina y ordena en memoria (aceptable a esta escala; un sistema en producción denormalizaría en una tabla de feed).
+
+**Trade-offs**
+
+- Modelo pull (query en lectura) en lugar de fan-out en escritura. Simple y correcto a esta escala; no escala a millones de followers sin caché o un servicio de feed dedicado.
+- Sin índice full-text — la búsqueda de usuarios usa `ILIKE '%term%'` que requiere sequential scan. Aceptable para demo; en producción se usaría `pg_trgm` o un motor de búsqueda dedicado.
+
+---
+
+## Estructura del proyecto
 
 ```
 backend/
   src/
-    TwitterClone.Domain/         # entities, value objects — zero deps
+    TwitterClone.Domain/         # entidades, value objects — sin dependencias
     TwitterClone.Application/    # use cases, DTOs, interfaces
     TwitterClone.Infrastructure/ # EF Core, repos, JWT, BCrypt
-    TwitterClone.Api/            # minimal API endpoints, DI wiring
+    TwitterClone.Api/            # endpoints minimal API, DI wiring
   tests/
     TwitterClone.Domain.Tests/
     TwitterClone.Application.Tests/
@@ -208,10 +258,10 @@ docs/   scripts/   docker-compose.yml   .env.example
 
 ---
 
-## Further reading
+## Más información
 
 - Spec: [`docs/SPEC.md`](docs/SPEC.md)
 - Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md)
-- Architecture deep-dive: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
-- Backend conventions: [`backend/AGENTS.md`](backend/AGENTS.md)
-- Frontend conventions: [`frontend/AGENTS.md`](frontend/AGENTS.md)
+- Arquitectura en detalle: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- Convenciones backend: [`backend/AGENTS.md`](backend/AGENTS.md)
+- Convenciones frontend: [`frontend/AGENTS.md`](frontend/AGENTS.md)
