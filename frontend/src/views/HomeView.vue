@@ -2,13 +2,20 @@
   <div class="min-h-screen bg-gray-50">
     <div class="max-w-xl md:max-w-2xl mx-auto py-6 px-4 md:px-6 space-y-4">
       <!-- Composer -->
-      <div class="bg-white rounded-2xl shadow p-4 space-y-3">
+      <div class="bg-white rounded-2xl shadow p-4 space-y-3 relative">
         <textarea
           v-model="draftText"
           rows="3"
           maxlength="280"
           placeholder="What's happening?"
           class="w-full resize-none border-none outline-none text-gray-900 placeholder-gray-400 text-sm md:text-base"
+          @input="composerMention.onInput(($event.target as HTMLTextAreaElement).selectionStart ?? 0)"
+          @keydown="composerMention.onKeydown"
+        />
+        <MentionDropdown
+          :is-open="composerMention.isOpen"
+          :suggestions="composerMention.suggestions"
+          @pick="composerMention.pick"
         />
         <div v-if="imagePreview" class="relative inline-block">
           <img :src="imagePreview" class="max-h-40 rounded-lg object-cover" alt="preview" />
@@ -125,7 +132,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useTweetStore } from '@/stores/useTweetStore'
@@ -133,7 +140,9 @@ import { tweetsApi } from '@/api/tweets'
 import { socialApi } from '@/api/social'
 import type { Tweet } from '@/types/tweet'
 import MentionText from '@/components/MentionText.vue'
+import MentionDropdown from '@/components/MentionDropdown.vue'
 import { useMentionsStore } from '@/stores/useMentionsStore'
+import { useMentionAutocomplete } from '@/composables/useMentionAutocomplete'
 
 const auth = useAuthStore()
 const tweets = useTweetStore()
@@ -143,6 +152,11 @@ const draftText = ref('')
 const posting = ref(false)
 const selectedFile = ref<File | null>(null)
 const imagePreview = ref<string | null>(null)
+
+const composerMention = reactive(useMentionAutocomplete(
+  () => draftText.value,
+  (v) => { draftText.value = v },
+))
 
 onMounted(async () => {
   await tweets.loadTimeline(true)

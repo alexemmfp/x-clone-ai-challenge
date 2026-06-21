@@ -65,6 +65,9 @@ Legend: `[ ]` todo · `[~]` en progreso (marcar al INICIAR, commitear inmediatam
 ## M12 — Real-time notifications
 - [x] SignalR user groups (JWT auth on hub), push follow/mention/retweet events to target user, notification store + badge + /notifications page. — `feat(realtime): follow/mention/retweet notifications via signalr`
 
+## M13 — @mention autocomplete
+- [x] Autocomplete dropdown when typing @word in tweet/reply composers: debounced search, shows avatar + name, inserts on click/Esc closes. — `feat(ux): @mention autocomplete in composers`
+
 ## M8 — Final polish
 - [x] Coverage audit ≥85%, remove dead code, consistent naming. — `refactor: cleanup and coverage audit`
 - [x] Final docs pass (decisions, trade-offs, AI usage). — `docs: architecture decisions and trade-offs`

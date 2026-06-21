@@ -45,13 +45,20 @@
         </article>
 
         <!-- Reply composer -->
-        <div class="bg-white rounded-2xl shadow p-4 space-y-3">
+        <div class="bg-white rounded-2xl shadow p-4 space-y-3 relative">
           <textarea
             v-model="replyText"
             rows="2"
             maxlength="280"
             placeholder="Write a reply…"
             class="w-full resize-none border-none outline-none text-gray-900 placeholder-gray-400 text-sm"
+            @input="replyMention.onInput(($event.target as HTMLTextAreaElement).selectionStart ?? 0)"
+            @keydown="replyMention.onKeydown"
+          />
+          <MentionDropdown
+            :is-open="replyMention.isOpen"
+            :suggestions="replyMention.suggestions"
+            @pick="replyMention.pick"
           />
           <div v-if="replyImagePreview" class="relative inline-block">
             <img :src="replyImagePreview" class="max-h-32 rounded-lg object-cover" alt="preview" />
@@ -137,13 +144,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { tweetsApi } from '@/api/tweets'
 import { socialApi } from '@/api/social'
 import type { Tweet } from '@/types/tweet'
 import MentionText from '@/components/MentionText.vue'
+import MentionDropdown from '@/components/MentionDropdown.vue'
 import { useMentionsStore } from '@/stores/useMentionsStore'
+import { useMentionAutocomplete } from '@/composables/useMentionAutocomplete'
 
 const route = useRoute()
 const mentionsStore = useMentionsStore()
@@ -154,6 +163,11 @@ const replyText = ref('')
 const submitting = ref(false)
 const selectedReplyFile = ref<File | null>(null)
 const replyImagePreview = ref<string | null>(null)
+
+const replyMention = reactive(useMentionAutocomplete(
+  () => replyText.value,
+  (v) => { replyText.value = v },
+))
 
 onMounted(async () => {
   const id = route.params.id as string
