@@ -43,6 +43,7 @@
             <!-- Follow/Unfollow: other profile -->
             <button
               v-if="auth.user && auth.user.id !== profile.id"
+              data-testid="follow-btn"
               class="text-sm font-semibold rounded-full px-4 py-1.5 transition border"
               :class="profile.isFollowedByViewer
                 ? 'border-gray-300 text-gray-700 hover:bg-gray-50'
