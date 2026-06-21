@@ -12,6 +12,8 @@ public class RetweetHandlerTests
     private readonly IRetweetRepository _retweets = Substitute.For<IRetweetRepository>();
     private readonly ITweetRepository _tweets = Substitute.For<ITweetRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
+    private readonly ITimelineNotifier _notifier = Substitute.For<ITimelineNotifier>();
+    private readonly IUserRepository _users = Substitute.For<IUserRepository>();
 
     [Fact]
     public async Task RetweetHandler_NewRetweet_AddsAndSaves()
@@ -19,11 +21,13 @@ public class RetweetHandlerTests
         var retweeterId = Guid.NewGuid();
         var authorId = Guid.NewGuid();
         var tweet = CreateTweet(authorId);
+        var retweeter = User.Create("alice", "alice@example.com", "hash");
 
         _tweets.GetByIdAsync(tweet.Id, Arg.Any<CancellationToken>()).Returns(tweet);
         _retweets.ExistsAsync(retweeterId, tweet.Id, Arg.Any<CancellationToken>()).Returns(false);
+        _users.GetByIdAsync(retweeterId, Arg.Any<CancellationToken>()).Returns(retweeter);
 
-        var handler = new RetweetHandler(_retweets, _tweets, _uow);
+        var handler = new RetweetHandler(_retweets, _tweets, _uow, _notifier, _users);
         await handler.HandleAsync(new RetweetCommand(retweeterId, tweet.Id));
 
         await _retweets.Received(1).AddAsync(Arg.Any<Retweet>(), Arg.Any<CancellationToken>());
@@ -40,7 +44,7 @@ public class RetweetHandlerTests
         _tweets.GetByIdAsync(tweet.Id, Arg.Any<CancellationToken>()).Returns(tweet);
         _retweets.ExistsAsync(retweeterId, tweet.Id, Arg.Any<CancellationToken>()).Returns(true);
 
-        var handler = new RetweetHandler(_retweets, _tweets, _uow);
+        var handler = new RetweetHandler(_retweets, _tweets, _uow, _notifier, _users);
         await handler.HandleAsync(new RetweetCommand(retweeterId, tweet.Id));
 
         await _retweets.DidNotReceive().AddAsync(Arg.Any<Retweet>(), Arg.Any<CancellationToken>());
@@ -55,7 +59,7 @@ public class RetweetHandlerTests
         _tweets.GetByIdAsync(tweet.Id, Arg.Any<CancellationToken>()).Returns(tweet);
         _retweets.ExistsAsync(userId, tweet.Id, Arg.Any<CancellationToken>()).Returns(false);
 
-        var handler = new RetweetHandler(_retweets, _tweets, _uow);
+        var handler = new RetweetHandler(_retweets, _tweets, _uow, _notifier, _users);
         var act = async () => await handler.HandleAsync(new RetweetCommand(userId, tweet.Id));
 
         await act.Should().ThrowAsync<DomainException>();

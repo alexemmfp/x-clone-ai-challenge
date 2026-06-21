@@ -13,12 +13,22 @@
         <span class="hidden lg:block text-sm">Home</span>
       </RouterLink>
 
-      <span class="flex items-center gap-3 rounded-full p-3 text-gray-300 cursor-default">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 flex-shrink-0">
-          <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
-        </svg>
+      <RouterLink
+        to="/notifications"
+        class="flex items-center gap-3 rounded-full p-3 hover:bg-gray-100 transition"
+        :class="route.path === '/notifications' ? 'text-sky-500 font-bold' : 'text-gray-700'"
+      >
+        <div class="relative flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+          </svg>
+          <span v-if="notifs.unreadCount > 0"
+            class="absolute -top-1 -right-1 bg-sky-500 text-white text-[10px] rounded-full min-w-[16px] h-4 flex items-center justify-center px-0.5 leading-none">
+            {{ notifs.unreadCount > 9 ? '9+' : notifs.unreadCount }}
+          </span>
+        </div>
         <span class="hidden lg:block text-sm">Notifications</span>
-      </span>
+      </RouterLink>
 
       <RouterLink
         :to="`/profile/${auth.user?.username}`"
@@ -68,11 +78,13 @@
 import { ref, onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { useNotificationsStore } from '@/stores/useNotificationsStore'
 import { socialApi } from '@/api/social'
 import type { Profile } from '@/types/profile'
 
 const auth = useAuthStore()
 const route = useRoute()
+const notifs = useNotificationsStore()
 const profile = ref<Profile | null>(null)
 
 onMounted(async () => {

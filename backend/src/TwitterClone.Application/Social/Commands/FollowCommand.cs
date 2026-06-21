@@ -9,7 +9,8 @@ public sealed record FollowCommand(Guid FollowerId, Guid FolloweeId);
 public sealed class FollowHandler(
     IFollowRepository follows,
     IUserRepository users,
-    IUnitOfWork uow)
+    IUnitOfWork uow,
+    ITimelineNotifier notifier)
 {
     public async Task HandleAsync(FollowCommand cmd, CancellationToken ct = default)
     {
@@ -18,7 +19,7 @@ public sealed class FollowHandler(
             throw new DomainException("Cannot follow yourself.");
         }
 
-        var followee = await users.GetByIdAsync(cmd.FolloweeId, ct)
+        _ = await users.GetByIdAsync(cmd.FolloweeId, ct)
             ?? throw new DomainException("User not found.");
 
         var existing = await follows.GetAsync(cmd.FollowerId, cmd.FolloweeId, ct);
@@ -30,6 +31,8 @@ public sealed class FollowHandler(
         await follows.AddAsync(Follow.Create(cmd.FollowerId, cmd.FolloweeId), ct);
         await uow.SaveChangesAsync(ct);
 
-        _ = followee;
+        var follower = await users.GetByIdAsync(cmd.FollowerId, ct);
+        await notifier.NotifyFollowedAsync(cmd.FolloweeId,
+            follower!.Username, follower.DisplayName, follower.AvatarUrl, ct);
     }
 }

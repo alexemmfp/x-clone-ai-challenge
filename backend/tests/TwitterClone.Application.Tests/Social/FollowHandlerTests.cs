@@ -12,16 +12,18 @@ public class FollowHandlerTests
     private readonly IFollowRepository _follows = Substitute.For<IFollowRepository>();
     private readonly IUserRepository _users = Substitute.For<IUserRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
+    private readonly ITimelineNotifier _notifier = Substitute.For<ITimelineNotifier>();
 
     private readonly User _follower = User.Create("alice", "alice@example.com", "hash");
     private readonly User _followee = User.Create("bob", "bob@example.com", "hash");
 
-    private FollowHandler CreateHandler() => new(_follows, _users, _uow);
+    private FollowHandler CreateHandler() => new(_follows, _users, _uow, _notifier);
 
     [Fact]
     public async Task HandleAsync_ValidFollow_SavesFollow()
     {
         _users.GetByIdAsync(_followee.Id).Returns(_followee);
+        _users.GetByIdAsync(_follower.Id).Returns(_follower);
         _follows.GetAsync(_follower.Id, _followee.Id).Returns((Follow?)null);
 
         await CreateHandler().HandleAsync(new FollowCommand(_follower.Id, _followee.Id));

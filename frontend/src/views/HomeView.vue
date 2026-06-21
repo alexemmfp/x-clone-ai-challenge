@@ -129,7 +129,6 @@ import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useTweetStore } from '@/stores/useTweetStore'
-import { useTimelineHub } from '@/composables/useTimelineHub'
 import { tweetsApi } from '@/api/tweets'
 import { socialApi } from '@/api/social'
 import type { Tweet } from '@/types/tweet'
@@ -145,7 +144,6 @@ const posting = ref(false)
 const selectedFile = ref<File | null>(null)
 const imagePreview = ref<string | null>(null)
 
-useTimelineHub((tweet) => tweets.prependTweet(tweet))
 onMounted(async () => {
   await tweets.loadTimeline(true)
   const allMentions = tweets.timeline

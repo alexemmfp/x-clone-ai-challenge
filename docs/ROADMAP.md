@@ -59,6 +59,12 @@ Legend: `[ ]` todo · `[~]` en progreso (marcar al INICIAR, commitear inmediatam
 - [x] Reply counter (💬) on tweet cards alongside retweet and like counters. — `feat(tweets): reply count on tweet cards`
 - [x] User avatar + display name before @username on tweet cards (default icon if no avatar). — `feat(profile): display name and avatar on tweet cards`
 
+## M11 — Sidebar & nav
+- [x] Fixed sidebar (desktop) + bottom nav (mobile): Home, Notifications, Profile, user card with logout. — `feat(ui): fixed sidebar navigation and mobile bottom nav`
+
+## M12 — Real-time notifications
+- [x] SignalR user groups (JWT auth on hub), push follow/mention/retweet events to target user, notification store + badge + /notifications page. — `feat(realtime): follow/mention/retweet notifications via signalr`
+
 ## M8 — Final polish
 - [x] Coverage audit ≥85%, remove dead code, consistent naming. — `refactor: cleanup and coverage audit`
 - [x] Final docs pass (decisions, trade-offs, AI usage). — `docs: architecture decisions and trade-offs`

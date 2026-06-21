@@ -23,6 +23,7 @@ const router = createRouter({
       component: () => import('@/views/ThreadView.vue'),
       meta: { requiresAuth: true },
     },
+    { path: '/notifications', name: 'notifications', component: () => import('@/views/NotificationsView.vue'), meta: { requiresAuth: true } },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })

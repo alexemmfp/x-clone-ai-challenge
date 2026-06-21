@@ -5,7 +5,7 @@ namespace TwitterClone.Application.Tweets.Commands;
 
 public sealed record RetweetCommand(Guid RetweeterId, Guid TweetId);
 
-public sealed class RetweetHandler(IRetweetRepository retweets, ITweetRepository tweets, IUnitOfWork uow)
+public sealed class RetweetHandler(IRetweetRepository retweets, ITweetRepository tweets, IUnitOfWork uow, ITimelineNotifier notifier, IUserRepository users)
 {
     public async Task HandleAsync(RetweetCommand cmd, CancellationToken ct = default)
     {
@@ -18,5 +18,11 @@ public sealed class RetweetHandler(IRetweetRepository retweets, ITweetRepository
         var retweet = Retweet.Create(cmd.RetweeterId, cmd.TweetId, tweet.AuthorId);
         await retweets.AddAsync(retweet, ct);
         await uow.SaveChangesAsync(ct);
+
+        if (tweet.AuthorId != cmd.RetweeterId)
+        {
+            var retweeter = await users.GetByIdAsync(cmd.RetweeterId, ct);
+            await notifier.NotifyRetweetedAsync(tweet.AuthorId, tweet.Id, retweeter!.Username, ct);
+        }
     }
 }

@@ -30,6 +30,21 @@ public sealed class CreateTweetHandler(
         await tweets.AddAsync(tweet, ct);
         await uow.SaveChangesAsync(ct);
 
+        var mentionMatches = System.Text.RegularExpressions.Regex.Matches(cmd.Text, @"@(\w+)");
+        var mentioned = mentionMatches.Select(m => m.Groups[1].Value).Distinct().ToList();
+        if (mentioned.Count > 0)
+        {
+            var existing = await users.GetExistingUsernamesAsync(mentioned, ct);
+            foreach (var uname in existing)
+            {
+                var u = await users.GetByUsernameAsync(uname, ct);
+                if (u is not null && u.Id != cmd.AuthorId)
+                {
+                    await notifier.NotifyMentionedAsync(u.Id, tweet.Id, author.Username, cmd.Text, ct);
+                }
+            }
+        }
+
         var dto = new TweetDto(tweet.Id, tweet.AuthorId, author.Username, tweet.Text, tweet.ParentId, tweet.ImageUrl, tweet.CreatedAt);
         await notifier.NotifyTweetCreatedAsync(dto, ct);
         return dto;

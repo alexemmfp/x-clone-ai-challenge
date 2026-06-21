@@ -12,6 +12,10 @@
 import { useAuthStore } from '@/stores/useAuthStore'
 import SideNav from '@/components/SideNav.vue'
 import BottomNav from '@/components/BottomNav.vue'
+import { useTimelineHub } from '@/composables/useTimelineHub'
+import { useTweetStore } from '@/stores/useTweetStore'
 
 const auth = useAuthStore()
+const tweets = useTweetStore()
+useTimelineHub((tweet) => tweets.prependTweet(tweet))
 </script>
