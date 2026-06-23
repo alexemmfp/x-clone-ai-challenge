@@ -79,6 +79,24 @@ public class RetweetHandlerTests
         await _uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task RetweetHandler_RetweeterNotFound_DoesNotNotify()
+    {
+        var retweeterId = Guid.NewGuid();
+        var authorId = Guid.NewGuid();
+        var tweet = CreateTweet(authorId);
+
+        _tweets.GetByIdAsync(tweet.Id, Arg.Any<CancellationToken>()).Returns(tweet);
+        _retweets.ExistsAsync(retweeterId, tweet.Id, Arg.Any<CancellationToken>()).Returns(false);
+        _users.GetByIdAsync(retweeterId, Arg.Any<CancellationToken>()).Returns((User?)null);
+
+        var handler = new RetweetHandler(_retweets, _tweets, _uow, _notifier, _users);
+        var act = async () => await handler.HandleAsync(new RetweetCommand(retweeterId, tweet.Id));
+
+        await act.Should().NotThrowAsync();
+        await _notifier.DidNotReceive().NotifyRetweetedAsync(Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+    }
+
     private static Tweet CreateTweet(Guid authorId) =>
         Tweet.Create(authorId, "test tweet");
 }

@@ -32,7 +32,10 @@ public sealed class FollowHandler(
         await uow.SaveChangesAsync(ct);
 
         var follower = await users.GetByIdAsync(cmd.FollowerId, ct);
-        await notifier.NotifyFollowedAsync(cmd.FolloweeId,
-            follower!.Username, follower.DisplayName, follower.AvatarUrl, ct);
+        if (follower is not null)
+        {
+            await notifier.NotifyFollowedAsync(cmd.FolloweeId,
+                follower.Username, follower.DisplayName, follower.AvatarUrl, ct);
+        }
     }
 }

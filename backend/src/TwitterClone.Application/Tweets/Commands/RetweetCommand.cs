@@ -22,7 +22,10 @@ public sealed class RetweetHandler(IRetweetRepository retweets, ITweetRepository
         if (tweet.AuthorId != cmd.RetweeterId)
         {
             var retweeter = await users.GetByIdAsync(cmd.RetweeterId, ct);
-            await notifier.NotifyRetweetedAsync(tweet.AuthorId, tweet.Id, retweeter!.Username, ct);
+            if (retweeter is not null)
+            {
+                await notifier.NotifyRetweetedAsync(tweet.AuthorId, tweet.Id, retweeter.Username, ct);
+            }
         }
     }
 }

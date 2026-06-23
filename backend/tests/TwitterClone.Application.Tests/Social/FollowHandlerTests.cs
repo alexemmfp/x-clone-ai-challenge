@@ -40,6 +40,20 @@ public class FollowHandlerTests
     }
 
     [Fact]
+    public async Task HandleAsync_FollowerNotFound_DoesNotNotify()
+    {
+        _users.GetByIdAsync(_followee.Id).Returns(_followee);
+        _users.GetByIdAsync(_follower.Id).Returns((User?)null);
+        _follows.GetAsync(_follower.Id, _followee.Id).Returns((Follow?)null);
+
+        var act = () => CreateHandler().HandleAsync(new FollowCommand(_follower.Id, _followee.Id));
+
+        await act.Should().NotThrowAsync();
+        await _notifier.DidNotReceive().NotifyFollowedAsync(
+            Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<string?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task HandleAsync_AlreadyFollowing_IsIdempotent()
     {
         _users.GetByIdAsync(_followee.Id).Returns(_followee);
