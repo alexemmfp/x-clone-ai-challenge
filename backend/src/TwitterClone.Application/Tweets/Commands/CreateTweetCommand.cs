@@ -30,12 +30,14 @@ public sealed class CreateTweetHandler(
         await tweets.AddAsync(tweet, ct);
         await uow.SaveChangesAsync(ct);
 
+        Guid? replyNotifiedUserId = null;
         if (cmd.ParentId is not null)
         {
             var parentTweet = await tweets.GetByIdAsync(cmd.ParentId.Value, ct);
             if (parentTweet is not null && parentTweet.AuthorId != cmd.AuthorId)
             {
                 await notifier.NotifyRepliedAsync(parentTweet.AuthorId, parentTweet.Id, author.Username, cmd.Text, ct);
+                replyNotifiedUserId = parentTweet.AuthorId;
             }
         }
 
@@ -47,7 +49,7 @@ public sealed class CreateTweetHandler(
             foreach (var uname in existing)
             {
                 var u = await users.GetByUsernameAsync(uname, ct);
-                if (u is not null && u.Id != cmd.AuthorId)
+                if (u is not null && u.Id != cmd.AuthorId && u.Id != replyNotifiedUserId)
                 {
                     await notifier.NotifyMentionedAsync(u.Id, tweet.Id, author.Username, cmd.Text, ct);
                 }
