@@ -10,12 +10,14 @@ public class LikeHandlerTests
 {
     private readonly ILikeRepository _likes = Substitute.For<ILikeRepository>();
     private readonly ITweetRepository _tweets = Substitute.For<ITweetRepository>();
+    private readonly IUserRepository _users = Substitute.For<IUserRepository>();
+    private readonly ITimelineNotifier _notifier = Substitute.For<ITimelineNotifier>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
 
     private readonly User _user = User.Create("alice", "alice@example.com", "hash");
     private readonly Tweet _tweet = Tweet.Create(Guid.NewGuid(), "hello");
 
-    private LikeHandler CreateHandler() => new(_likes, _tweets, _uow);
+    private LikeHandler CreateHandler() => new(_likes, _tweets, _users, _notifier, _uow);
 
     [Fact]
     public async Task HandleAsync_ValidLike_SavesLike()
