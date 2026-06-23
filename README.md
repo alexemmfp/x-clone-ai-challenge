@@ -31,7 +31,7 @@ docker compose up -d --build
 - API: **http://localhost:8080** — health: `GET /health`
 - Postgres: **localhost:5433**
 
-La API corre las migraciones y el seed automáticamente al primer inicio. Credenciales: `alice@example.com` / `Seed1234!`.
+La API corre las migraciones y el seed automáticamente al primer inicio. Credenciales: `alice@example.com` / `Seed1234!`
 
 ---
 
@@ -212,9 +212,9 @@ El beneficio adicional es que los límites entre capas son verificables automát
 
 ### PostgreSQL
 
-Es la base de datos que uso en mi trabajo diario y con la que me siento más cómodo, lo que en un challenge de 72 horas tiene peso real.
+Es la base de datos que uso en mi trabajo diario y con la que me siento más cómodo.
 
-Además encaja bien con el problema: usuarios, tweets, follows y likes son datos que se relacionan entre sí de forma clara y estructurada, y PostgreSQL maneja eso de forma nativa. La tabla de follows tiene una clave primaria compuesta por `(FollowerId, FolloweeId)` — dos columnas que juntas identifican de forma única quién sigue a quién, sin necesidad de lógica extra en el código. El timeline es una consulta SQL directa que trae los tweets de los usuarios que seguís, ordenados por fecha. Por último, uso el mismo PostgreSQL tanto en producción como en los tests de integración, así lo que se prueba es exactamente lo que corre en producción.
+Encaja bien con el problema: usuarios, tweets, follows y likes son datos que se relacionan entre sí de forma clara y estructurada, y PostgreSQL maneja eso de forma nativa. La tabla de follows tiene una clave primaria compuesta por `(FollowerId, FolloweeId)` — dos columnas que juntas identifican de forma única quién sigue a quién, sin necesidad de lógica extra en el código. El timeline es una consulta SQL directa que trae los tweets de los usuarios que seguís, ordenados por fecha. Por último, uso el mismo PostgreSQL tanto en producción como en los tests de integración, así lo que se prueba es exactamente lo que corre en producción.
 
 ---
 
@@ -233,7 +233,49 @@ Clean Architecture: `Domain → Application → Infrastructure + Api`. Las depen
 - **Vue 3 + Pinia + Axios interceptor** — el interceptor de Axios auto-refresca el access token en 401 antes de reintentar el request original; el usuario nunca ve un redirect a login por expiración de token.
 - **SignalR real-time** — `TimelineHub` broadcast eventos `TweetCreated` a todos los clientes conectados. La interfaz (`ITimelineNotifier`) está definida en Application; la implementación con SignalR está en Infrastructure (regla de dependencia preservada).
 - **Tailwind mobile-first** — todas las vistas son responsive; el layout colapsa a columna única en pantallas pequeñas.
-- **Desarrollo asistido por AI** — Claude Code (Sonnet 4.6) escribió ~85% del código en modo pair-programming: el humano escribió las restricciones en CLAUDE.md, revisó los diffs y tomó decisiones arquitectónicas; la AI implementó handlers, tests, componentes frontend y DevOps. Todos los commits incluyen `Co-Authored-By: Claude Sonnet 4.6`.
+- **Desarrollo asistido por AI** — ver sección "Herramientas de AI" abajo.
+
+---
+
+## Herramientas de AI
+
+### Modelos utilizados
+
+| Fase | Modelo | Por qué |
+|---|---|---|
+| Planificación y arquitectura | **Claude Opus 4.8** | Decisiones de diseño de alto nivel: Clean Architecture, estrategia de testing, estructura del stack, análisis de trade-offs |
+| Ejecución y desarrollo | **Claude Sonnet 4.6** | Implementación de handlers, tests, componentes Vue, migrations, DevOps — la mayor parte del tiempo de desarrollo |
+
+Opus tiene mejor razonamiento arquitectónico; Sonnet es más rápido y suficiente para implementación dirigida por spec.
+
+### Harness de AI (cómo se controló la AI)
+
+El harness es el conjunto de restricciones y mecanismos que evitaron que la AI divagara o introdujera código no solicitado:
+
+- **`CLAUDE.md`** — instrucciones explícitas: no agregar abstracciones no pedidas, no "limpiar" código ajeno al cambio, no commitear sin que `check.ps1` sea verde, respetar Clean Architecture, seguir TDD.
+- **`scripts/check.ps1`** — sensor de feedback inmediato: build + tests + lint + typecheck en un comando. La AI no podía declarar nada "listo" sin que este script fuera verde.
+- **`docs/ROADMAP.md`** — task tracker del proyecto. Cada sesión arranca leyendo el primer `[ ]`, lo marca `[~]`, lo implementa, y commitea con `[x]` en el mismo commit. La AI no decide qué hacer — el roadmap lo decide.
+- **`docs/SPEC.md`** y **`backend/AGENTS.md` / `frontend/AGENTS.md`** — specs y convenciones por capa que la AI lee antes de codear, para no inventar decisiones.
+
+### TDD (Test-Driven Development)
+
+El protocolo TDD fue obligatorio y se reforzó en el harness:
+
+1. **Red** — la AI escribe el test primero. Si el test pasa sin código nuevo, el test está mal.
+2. **Green** — implementación mínima para que pase. `check.ps1` debe ser verde.
+3. **Commit** — feature + tests + `[x]` en ROADMAP en el mismo commit, nunca separados.
+
+Resultado: 108 tests (backend: 80 · frontend: 28), cobertura ≥85% (medida en CI Linux via Testcontainers + coverlet).
+
+### Spec-Driven Development (SDD)
+
+Todo feature parte de `docs/SPEC.md` antes de existir en código. El harness obliga a leer la sección relevante de la spec antes de codear — la AI no inventa features ni toma decisiones de producto. La spec es la fuente de verdad; el ROADMAP la convierte en tareas ordenadas; los tests verifican que la implementación la cumple.
+
+### Subagent-Driven Development
+
+Para tareas complejas se usó este patrón: un agente coordinador despacha subagentes especializados por tarea. Cada subagente recibe solo el contexto que necesita (brief, interfaces relevantes, constraints), implementa, se auto-revisa, y el coordinador hace una revisión independiente antes de marcar completa. Evita la acumulación de contexto que degrada la calidad de la AI en sesiones largas.
+
+Todos los commits de código generado por AI incluyen `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>`.
 
 ---
 
