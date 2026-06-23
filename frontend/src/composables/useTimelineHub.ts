@@ -55,11 +55,11 @@ export function useTimelineHub(onTweetCreated: (tweet: Tweet) => void) {
     if (isAuth && connection.state === HubConnectionState.Disconnected) {
       try { await connection.start() } catch { /* hub optional */ }
     } else if (!isAuth && connection.state !== HubConnectionState.Disconnected) {
-      await connection.stop()
+      try { await connection.stop() } catch { /* ignore stop errors */ }
     }
   }, { immediate: true })
 
   onUnmounted(async () => {
-    await connection.stop()
+    try { await connection.stop() } catch { /* ignore stop errors */ }
   })
 }

@@ -11,7 +11,8 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2 min-w-0">
               <RouterLink :to="`/profile/${parent.authorUsername}`" class="flex-shrink-0">
-                <img v-if="parent.authorAvatarUrl" :src="parent.authorAvatarUrl"
+                <img
+v-if="parent.authorAvatarUrl" :src="parent.authorAvatarUrl"
                      class="w-8 h-8 rounded-full object-cover" alt="avatar" />
                 <span v-else class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
@@ -105,7 +106,8 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2 min-w-0">
               <RouterLink :to="`/profile/${reply.authorUsername}`" class="flex-shrink-0">
-                <img v-if="reply.authorAvatarUrl" :src="reply.authorAvatarUrl"
+                <img
+v-if="reply.authorAvatarUrl" :src="reply.authorAvatarUrl"
                      class="w-8 h-8 rounded-full object-cover" alt="avatar" />
                 <span v-else class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
@@ -191,6 +193,9 @@ function onReplyImageChange(e: Event) {
 }
 
 function clearReplyImage() {
+  if (replyImagePreview.value) {
+    URL.revokeObjectURL(replyImagePreview.value)
+  }
   selectedReplyFile.value = null
   replyImagePreview.value = null
 }
@@ -207,20 +212,29 @@ async function submitReply() {
     replies.value = [...replies.value, reply]
     replyText.value = ''
     clearReplyImage()
+  } catch {
+    alert('Failed to post reply. Please try again.')
   } finally {
     submitting.value = false
   }
 }
 
 async function toggleLike(tweet: Tweet) {
-  if (tweet.likedByViewer) {
-    await socialApi.unlikeTweet(tweet.id)
-    tweet.likeCount--
-    tweet.likedByViewer = false
-  } else {
-    await socialApi.likeTweet(tweet.id)
-    tweet.likeCount++
-    tweet.likedByViewer = true
+  const prevCount = tweet.likeCount
+  const prevState = tweet.likedByViewer
+  try {
+    if (tweet.likedByViewer) {
+      tweet.likeCount--
+      tweet.likedByViewer = false
+      await socialApi.unlikeTweet(tweet.id)
+    } else {
+      tweet.likeCount++
+      tweet.likedByViewer = true
+      await socialApi.likeTweet(tweet.id)
+    }
+  } catch {
+    tweet.likeCount = prevCount
+    tweet.likedByViewer = prevState
   }
 }
 

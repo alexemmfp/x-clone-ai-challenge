@@ -64,7 +64,8 @@
           <div class="flex items-center gap-2 min-w-0">
             <!-- avatar -->
             <RouterLink :to="`/profile/${tweet.authorUsername}`" class="flex-shrink-0">
-              <img v-if="tweet.authorAvatarUrl" :src="tweet.authorAvatarUrl"
+              <img
+v-if="tweet.authorAvatarUrl" :src="tweet.authorAvatarUrl"
                    class="w-8 h-8 rounded-full object-cover" alt="avatar" />
               <span v-else class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
@@ -89,7 +90,8 @@
           <img :src="tweet.imageUrl" class="rounded-lg max-h-64 object-cover w-full hover:opacity-90 transition" alt="tweet image" />
         </a>
         <div class="flex items-center gap-4">
-          <RouterLink :to="`/tweet/${tweet.id}`"
+          <RouterLink
+:to="`/tweet/${tweet.id}`"
             class="flex items-center gap-1 text-xs text-gray-400 hover:text-sky-400 transition min-h-[44px]">
             💬 {{ tweet.replyCount }}
           </RouterLink>
@@ -177,6 +179,9 @@ function confirmDelete(id: string) {
 }
 
 function clearImage() {
+  if (imagePreview.value) {
+    URL.revokeObjectURL(imagePreview.value)
+  }
   selectedFile.value = null
   imagePreview.value = null
 }
@@ -192,6 +197,8 @@ async function post() {
     await tweets.createTweet(draftText.value.trim(), imageUrl)
     draftText.value = ''
     clearImage()
+  } catch {
+    alert('Failed to post. Please try again.')
   } finally {
     posting.value = false
   }
@@ -207,14 +214,22 @@ function formatDate(iso: string) {
 }
 
 async function toggleRetweet(tweet: Tweet) {
-  if (tweet.retweetedByViewer) {
-    await socialApi.unretweet(tweet.id)
-    tweet.retweetCount--
-    tweet.retweetedByViewer = false
-  } else {
-    const result = await socialApi.retweet(tweet.id)
-    tweet.retweetCount = result.retweetCount
-    tweet.retweetedByViewer = true
+  const prevCount = tweet.retweetCount
+  const prevState = tweet.retweetedByViewer
+  try {
+    if (tweet.retweetedByViewer) {
+      tweet.retweetCount--
+      tweet.retweetedByViewer = false
+      await socialApi.unretweet(tweet.id)
+    } else {
+      tweet.retweetCount++
+      tweet.retweetedByViewer = true
+      const result = await socialApi.retweet(tweet.id)
+      tweet.retweetCount = result.retweetCount
+    }
+  } catch {
+    tweet.retweetCount = prevCount
+    tweet.retweetedByViewer = prevState
   }
 }
 

@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, onUnmounted, getCurrentInstance } from 'vue'
 import { usersApi, type UserSearchResult } from '@/api/users'
 
 export function useMentionAutocomplete(
@@ -55,6 +55,12 @@ export function useMentionAutocomplete(
   function onKeydown(e: KeyboardEvent) {
     if (!isOpen.value) return
     if (e.key === 'Escape') { e.preventDefault(); close() }
+  }
+
+  if (getCurrentInstance()) {
+    onUnmounted(() => {
+      if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null }
+    })
   }
 
   return { suggestions, isOpen, onInput, pick, close, onKeydown }

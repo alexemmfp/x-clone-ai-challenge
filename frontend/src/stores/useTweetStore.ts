@@ -44,19 +44,32 @@ export const useTweetStore = defineStore('tweets', () => {
   }
 
   async function deleteTweet(id: string) {
-    await tweetsApi.delete(id)
+    const prev = timeline.value
     timeline.value = timeline.value.filter((t) => t.id !== id)
+    try {
+      await tweetsApi.delete(id)
+    } catch {
+      timeline.value = prev
+      alert('Failed to delete tweet. Please try again.')
+    }
   }
 
   async function toggleLike(tweet: Tweet) {
-    if (tweet.likedByViewer) {
-      await socialApi.unlikeTweet(tweet.id)
-      tweet.likeCount--
-      tweet.likedByViewer = false
-    } else {
-      await socialApi.likeTweet(tweet.id)
-      tweet.likeCount++
-      tweet.likedByViewer = true
+    const prevCount = tweet.likeCount
+    const prevState = tweet.likedByViewer
+    try {
+      if (tweet.likedByViewer) {
+        tweet.likeCount--
+        tweet.likedByViewer = false
+        await socialApi.unlikeTweet(tweet.id)
+      } else {
+        tweet.likeCount++
+        tweet.likedByViewer = true
+        await socialApi.likeTweet(tweet.id)
+      }
+    } catch {
+      tweet.likeCount = prevCount
+      tweet.likedByViewer = prevState
     }
   }
 

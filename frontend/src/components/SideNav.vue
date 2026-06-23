@@ -14,7 +14,7 @@
       </RouterLink>
 
       <!-- Search -->
-      <div class="relative my-2" ref="searchContainer">
+      <div ref="searchContainer" class="relative my-2">
         <!-- lg: full search input -->
         <div class="hidden lg:flex items-center gap-2 bg-gray-100 rounded-full px-3 py-2">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-gray-400 flex-shrink-0">
@@ -75,7 +75,8 @@
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
             <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
           </svg>
-          <span v-if="notifs.unreadCount > 0"
+          <span
+v-if="notifs.unreadCount > 0"
             class="absolute -top-1 -right-1 bg-sky-500 text-white text-[10px] rounded-full min-w-[16px] h-4 flex items-center justify-center px-0.5 leading-none">
             {{ notifs.unreadCount > 9 ? '9+' : notifs.unreadCount }}
           </span>
@@ -96,7 +97,7 @@
     </nav>
 
     <!-- User card -->
-    <div class="relative" ref="userCardContainer">
+    <div ref="userCardContainer" class="relative">
       <!-- lg: full card with name + ··· menu -->
       <div
         class="hidden lg:flex items-center gap-3 p-3 rounded-full hover:bg-gray-100 cursor-pointer"
@@ -134,8 +135,8 @@
       <!-- sm: icon-only avatar → navigate to profile -->
       <button
         class="flex lg:hidden w-10 h-10 rounded-full bg-gray-200 items-center justify-center overflow-hidden mx-auto hover:opacity-80 transition"
-        @click="router.push(`/profile/${auth.user?.username}`)"
         title="Mi perfil"
+        @click="router.push(`/profile/${auth.user?.username}`)"
       >
         <img v-if="auth.user?.avatarUrl" :src="auth.user.avatarUrl" class="w-full h-full object-cover" alt="avatar" />
         <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-400">
@@ -180,6 +181,7 @@ watch(searchQuery, (q) => {
       searchOpen.value = true
     } catch {
       searchResults.value = []
+      searchOpen.value = false
     }
   }, 200)
 })

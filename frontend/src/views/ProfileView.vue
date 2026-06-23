@@ -215,14 +215,21 @@ async function loadProfile() {
 
 async function toggleFollow() {
   if (!profile.value) return
-  if (profile.value.isFollowedByViewer) {
-    await socialApi.unfollow(profile.value.username)
-    profile.value.isFollowedByViewer = false
-    profile.value.followerCount--
-  } else {
-    await socialApi.follow(profile.value.username)
-    profile.value.isFollowedByViewer = true
-    profile.value.followerCount++
+  const prevFollowed = profile.value.isFollowedByViewer
+  const prevCount = profile.value.followerCount
+  try {
+    if (profile.value.isFollowedByViewer) {
+      profile.value.isFollowedByViewer = false
+      profile.value.followerCount--
+      await socialApi.unfollow(profile.value.username)
+    } else {
+      profile.value.isFollowedByViewer = true
+      profile.value.followerCount++
+      await socialApi.follow(profile.value.username)
+    }
+  } catch {
+    profile.value.isFollowedByViewer = prevFollowed
+    profile.value.followerCount = prevCount
   }
 }
 
@@ -254,6 +261,10 @@ async function onAvatarFileChange(e: Event) {
   uploadingAvatar.value = true
   try {
     editAvatarUrl.value = await tweetsApi.uploadImage(file)
+  } catch {
+    if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
+    avatarPreview.value = null
+    alert('Avatar upload failed. Please try again.')
   } finally {
     uploadingAvatar.value = false
   }
@@ -272,6 +283,8 @@ async function saveEdit() {
     if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
     avatarPreview.value = null
     editing.value = false
+  } catch {
+    alert('Failed to save profile. Please try again.')
   } finally {
     saving.value = false
   }
