@@ -110,7 +110,7 @@
           <button
             v-if="tweet.authorId === auth.user?.id && !tweet.isRetweet"
             class="text-xs text-red-400 hover:text-red-600 transition ml-auto min-h-[44px]"
-            @click="tweets.deleteTweet(tweet.id)"
+            @click="confirmDelete(tweet.id)"
           >
             Delete
           </button>
@@ -170,6 +170,10 @@ function onFileChange(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0] ?? null
   selectedFile.value = file
   imagePreview.value = file ? URL.createObjectURL(file) : null
+}
+
+function confirmDelete(id: string) {
+  if (confirm('¿Eliminar este tweet?')) tweets.deleteTweet(id)
 }
 
 function clearImage() {
