@@ -73,6 +73,11 @@ Legend: `[ ]` todo · `[~]` en progreso (marcar al INICIAR, commitear inmediatam
 - [x] Followers / following lists in ProfileView: clickable list of users (backend endpoints needed: GET /api/users/{username}/followers + /following). — `feat(profile): followers and following lists`
 - [x] Search UI: search bar in SideNav/HomeView + results panel linking to profiles. — `feat(search): user search ui`
 
+## M15 — Like & Reply notifications + Search bar relocation
+- [x] Backend: NotifyLikedAsync + NotifyRepliedAsync in ITimelineNotifier + SignalRTimelineNotifier; trigger from LikeCommand and CreateTweetCommand (reply branch). — `feat(realtime): like and reply notifications`
+- [x] Frontend: extend NotificationType, add SignalR handlers, update NotificationsView icons/labels. — `feat(web): like and reply notification display`
+- [x] Search bar relocated below Home icon in SideNav. — `feat(ui): move search bar below home nav`
+
 ## M8 — Final polish
 - [x] Coverage audit ≥85%, remove dead code, consistent naming. — `refactor: cleanup and coverage audit`
 - [x] Final docs pass (decisions, trade-offs, AI usage). — `docs: architecture decisions and trade-offs`
