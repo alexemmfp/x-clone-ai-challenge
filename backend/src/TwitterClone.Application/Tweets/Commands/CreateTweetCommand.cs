@@ -12,7 +12,16 @@ public sealed class CreateTweetCommandValidator : AbstractValidator<CreateTweetC
     public CreateTweetCommandValidator()
     {
         RuleFor(x => x.Text).NotEmpty().MaximumLength(280);
+        RuleFor(x => x.ImageUrl)
+            .MaximumLength(512)
+            .Must(url => url is null || IsAllowedUrl(url))
+            .WithMessage("ImageUrl must be a relative /uploads path or an http(s) URL.");
     }
+
+    private static bool IsAllowedUrl(string url) =>
+        url.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase) ||
+        (Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
+            (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps));
 }
 
 public sealed class CreateTweetHandler(

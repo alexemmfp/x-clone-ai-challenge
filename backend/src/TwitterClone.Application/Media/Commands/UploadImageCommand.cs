@@ -15,6 +15,6 @@ public sealed class UploadImageHandler(IFileStorageService storage)
             throw new InvalidOperationException("File exceeds maximum size of 5 MB.");
         }
 
-        return await storage.SaveAsync(cmd.FileStream, cmd.FileName, ct);
+        return await storage.SaveAsync(cmd.FileStream, cmd.ContentType, ct);
     }
 }

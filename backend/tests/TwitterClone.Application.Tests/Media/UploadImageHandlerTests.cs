@@ -21,7 +21,7 @@ public class UploadImageHandlerTests
         var result = await handler.HandleAsync(new UploadImageCommand(stream, "photo.jpg", "image/jpeg"));
 
         result.Should().Be("/uploads/abc123.jpg");
-        await _storage.Received(1).SaveAsync(stream, "photo.jpg", Arg.Any<CancellationToken>());
+        await _storage.Received(1).SaveAsync(stream, "image/jpeg", Arg.Any<CancellationToken>());
     }
 
     [Fact]

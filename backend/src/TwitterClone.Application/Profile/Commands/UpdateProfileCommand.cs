@@ -12,9 +12,18 @@ public sealed class UpdateProfileCommandValidator : AbstractValidator<UpdateProf
     public UpdateProfileCommandValidator()
     {
         RuleFor(x => x.Bio).MaximumLength(160).When(x => x.Bio is not null);
-        RuleFor(x => x.AvatarUrl).MaximumLength(512).When(x => x.AvatarUrl is not null);
+        RuleFor(x => x.AvatarUrl)
+            .MaximumLength(512)
+            .Must(url => url is null || IsAllowedUrl(url))
+            .WithMessage("AvatarUrl must be a relative /uploads path or an http(s) URL.")
+            .When(x => x.AvatarUrl is not null);
         RuleFor(x => x.DisplayName).MaximumLength(50).When(x => x.DisplayName is not null);
     }
+
+    private static bool IsAllowedUrl(string url) =>
+        url.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase) ||
+        (Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
+            (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps));
 }
 
 public sealed class UpdateProfileHandler(IUserRepository users, IFollowRepository follows, IUnitOfWork uow)

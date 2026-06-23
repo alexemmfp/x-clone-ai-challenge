@@ -66,4 +66,32 @@ public class ValidatorTests
         var result = await validator.ValidateAsync(new UpdateProfileCommand(Guid.NewGuid(), "short bio", null));
         result.IsValid.Should().BeTrue();
     }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("/uploads/abc.png", true)]
+    [InlineData("https://cdn.example.com/img.jpg", true)]
+    [InlineData("http://example.com/img.png", true)]
+    [InlineData("javascript:alert(1)", false)]
+    [InlineData("data:image/png;base64,abc", false)]
+    [InlineData("ftp://example.com/img.png", false)]
+    public async Task CreateTweetCommandValidator_ImageUrl_ValidatesCorrectly(string? imageUrl, bool expected)
+    {
+        var validator = new CreateTweetCommandValidator();
+        var result = await validator.ValidateAsync(new CreateTweetCommand(Guid.NewGuid(), "Hello", ImageUrl: imageUrl));
+        result.IsValid.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("/uploads/avatar.jpg", true)]
+    [InlineData("https://cdn.example.com/avatar.png", true)]
+    [InlineData("javascript:alert(1)", false)]
+    [InlineData("data:image/png;base64,abc", false)]
+    public async Task UpdateProfileCommandValidator_AvatarUrl_ValidatesCorrectly(string? avatarUrl, bool expected)
+    {
+        var validator = new UpdateProfileCommandValidator();
+        var result = await validator.ValidateAsync(new UpdateProfileCommand(Guid.NewGuid(), "bio", avatarUrl));
+        result.IsValid.Should().Be(expected);
+    }
 }
