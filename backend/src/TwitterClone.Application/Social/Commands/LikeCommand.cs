@@ -31,7 +31,9 @@ public sealed class LikeHandler(
         {
             var liker = await users.GetByIdAsync(cmd.UserId, ct);
             if (liker is not null)
+            {
                 await notifier.NotifyLikedAsync(tweet.AuthorId, tweet.Id, liker.Username, ct);
+            }
         }
     }
 }
