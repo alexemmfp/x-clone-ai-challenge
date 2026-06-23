@@ -76,18 +76,14 @@ El backend corre las migraciones y el seed automáticamente al iniciar. No se ne
 
 ### 5 — Configurar el entorno del frontend
 
-El frontend lee `VITE_API_BASE_URL` de un archivo `.env.development`. Este archivo está en `.gitignore` — hay que crearlo:
+El frontend lee `VITE_API_BASE_URL` de un archivo `.env.development`. Este archivo está en `.gitignore` — hay que crearlo manualmente con cualquier editor de texto:
 
-```bash
-# desde la raíz del repo
-echo "VITE_API_BASE_URL=http://localhost:5089" > frontend/.env.development
-```
-
-O crear `frontend/.env.development` manualmente con este contenido:
-
+**`frontend/.env.development`**
 ```
 VITE_API_BASE_URL=http://localhost:5089
 ```
+
+> **Importante:** No usar `echo > archivo` en PowerShell — genera UTF-16 y Vite no lo lee. Usar un editor de texto o `New-Item` + `Set-Content -Encoding utf8`.
 
 ### 6 — Levantar el frontend
 
