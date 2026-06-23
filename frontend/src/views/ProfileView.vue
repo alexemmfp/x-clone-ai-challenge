@@ -68,13 +68,44 @@
             />
           </div>
           <div>
-            <label class="text-xs text-gray-500 font-medium">Avatar URL</label>
+            <label class="text-xs text-gray-500 font-medium">Foto de perfil</label>
+            <div class="flex items-center gap-3 mt-1">
+              <img
+                v-if="avatarPreview || editAvatarUrl"
+                :src="avatarPreview ?? editAvatarUrl"
+                class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                alt="avatar preview"
+              />
+              <span v-else class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-gray-400">
+                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+              </span>
+              <div class="flex flex-col gap-1">
+                <button
+                  type="button"
+                  class="text-xs px-3 py-1.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+                  :disabled="uploadingAvatar"
+                  @click="avatarFileInput?.click()"
+                >
+                  {{ uploadingAvatar ? 'Subiendo…' : 'Cambiar foto' }}
+                </button>
+                <button
+                  v-if="avatarPreview || editAvatarUrl"
+                  type="button"
+                  class="text-xs text-red-400 hover:text-red-600 text-left"
+                  @click="clearAvatar"
+                >
+                  Quitar foto
+                </button>
+              </div>
+            </div>
             <input
-              v-model="editAvatarUrl"
-              type="url"
-              maxlength="512"
-              placeholder="https://example.com/avatar.jpg"
-              class="w-full mt-0.5 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-sky-400"
+              ref="avatarFileInput"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              @change="onAvatarFileChange"
             />
           </div>
           <div class="flex gap-2 justify-end pt-1">
@@ -146,6 +177,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { socialApi } from '@/api/social'
+import { tweetsApi } from '@/api/tweets'
 import { useAuthStore } from '@/stores/useAuthStore'
 import type { Profile } from '@/types/profile'
 import type { UserSummary } from '@/types/userSummary'
@@ -160,6 +192,9 @@ const editing = ref(false)
 const editBio = ref('')
 const editAvatarUrl = ref('')
 const saving = ref(false)
+const uploadingAvatar = ref(false)
+const avatarPreview = ref<string | null>(null)
+const avatarFileInput = ref<HTMLInputElement | null>(null)
 
 const activeTab = ref<'followers' | 'following' | null>(null)
 const userList = ref<UserSummary[]>([])
@@ -194,11 +229,34 @@ async function toggleFollow() {
 function startEdit() {
   editBio.value = profile.value?.bio ?? ''
   editAvatarUrl.value = profile.value?.avatarUrl ?? ''
+  avatarPreview.value = null
   editing.value = true
 }
 
 function cancelEdit() {
+  if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
+  avatarPreview.value = null
   editing.value = false
+}
+
+function clearAvatar() {
+  if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
+  avatarPreview.value = null
+  editAvatarUrl.value = ''
+  if (avatarFileInput.value) avatarFileInput.value.value = ''
+}
+
+async function onAvatarFileChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
+  avatarPreview.value = URL.createObjectURL(file)
+  uploadingAvatar.value = true
+  try {
+    editAvatarUrl.value = await tweetsApi.uploadImage(file)
+  } finally {
+    uploadingAvatar.value = false
+  }
 }
 
 async function saveEdit() {
@@ -210,6 +268,9 @@ async function saveEdit() {
       avatarUrl: editAvatarUrl.value || undefined,
     })
     profile.value = { ...profile.value, bio: updated.bio, avatarUrl: updated.avatarUrl }
+    if (auth.user) auth.user.avatarUrl = updated.avatarUrl ?? null
+    if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
+    avatarPreview.value = null
     editing.value = false
   } finally {
     saving.value = false

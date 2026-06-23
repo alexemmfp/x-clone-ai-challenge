@@ -10,7 +10,8 @@ Clon funcional de Twitter/X. Backend .NET 10 Clean Architecture + Frontend Vue 3
 |---|---|---|
 | .NET SDK | **10.0.x** | `dotnet --version` |
 | Node.js | **20.x** | `node --version` |
-| Docker Desktop | **25+** (WSL2 en Windows) | `docker --version` |
+| Docker Engine o Docker Desktop | **25+** | `docker --version` |
+| Docker Compose | **v2** (plugin integrado) | `docker compose version` |
 | PowerShell | **7+** | `pwsh --version` |
 | Git | cualquiera | `git --version` |
 
@@ -18,7 +19,7 @@ Clon funcional de Twitter/X. Backend .NET 10 Clean Architecture + Frontend Vue 3
 
 ## Inicio rápido (Docker — un comando)
 
-> Requiere Docker Desktop activo. Levanta Postgres + API + frontend juntos.
+> Requiere Docker Engine (Linux/macOS) o Docker Desktop (Windows/macOS) con el plugin `docker compose` v2. Levanta Postgres + API + frontend juntos.
 
 ```bash
 git clone <repo-url> twitter_clone
@@ -83,6 +84,8 @@ cd backend/src/TwitterClone.Api && dotnet run
 
 El backend escucha en **http://localhost:5089**. Health check: `GET http://localhost:5089/health`.
 
+El backend corre las migraciones y el seed automáticamente al iniciar. No se necesita ningún paso adicional.
+
 ### 5 — Configurar el entorno del frontend
 
 El frontend lee `VITE_API_BASE_URL` de un archivo `.env.development`. Este archivo está en `.gitignore` — hay que crearlo:
@@ -137,9 +140,22 @@ El seed genera automáticamente tweets (con y sin imágenes), follows cruzados y
 
 | Variable | Descripción | Valor ejemplo |
 |---|---|---|
-| `VITE_API_BASE_URL` | URL base de la API (solo frontend) | `http://localhost:5089` |
+| `POSTGRES_USER` | Usuario de PostgreSQL | `twitter` |
+| `POSTGRES_PASSWORD` | Password de PostgreSQL | `change-me-local-dev` |
+| `POSTGRES_DB` | Nombre de la base de datos | `twitterclone` |
+| `POSTGRES_PORT` | Puerto interno del container | `5432` |
+| `ConnectionStrings__Default` | Connection string del backend (Npgsql) | `Host=localhost;Port=5432;Database=twitterclone;Username=twitter;Password=change-me-local-dev` |
+| `Jwt__Issuer` | Issuer del JWT | `twitterclone` |
+| `Jwt__Audience` | Audience del JWT | `twitterclone-web` |
+| `Jwt__SigningKey` | Clave secreta para firmar tokens (mínimo 32 chars) | `replace-with-32+char-random-secret` |
+| `Jwt__AccessTokenMinutes` | Duración del access token en minutos | `15` |
+| `Jwt__RefreshTokenDays` | Duración del refresh token en días | `7` |
+| `Bcrypt__WorkFactor` | Work factor para hashing de passwords | `11` |
+| `Cors__AllowedOrigins` | Origen permitido por CORS | `http://localhost:5173` |
+| `VITE_API_BASE_URL` | URL base de la API (solo frontend) | `http://localhost:8080` |
 
-El backend en desarrollo usa `appsettings.Development.json` (ya commiteado). Ver `.env.example` para Docker.
+> **`.env` es opcional.** El `docker-compose.yml` tiene defaults para todas las variables — el stack levanta sin ningún archivo `.env`. Copiar `.env.example` a `.env` solo si se quieren sobreescribir valores (por ejemplo, `Jwt__SigningKey` en producción).  
+> **Dev local:** el backend usa `appsettings.Development.json` (ya commiteado). Solo crear `frontend/.env.development` con `VITE_API_BASE_URL=http://localhost:5089`.
 
 ---
 
@@ -178,6 +194,43 @@ Los logs detallados se escriben en `.logs/`. La consola muestra solo un resumen.
 - **@menciones** — autocomplete al escribir @, renderiza como links a perfiles
 - **Notificaciones** — push en tiempo real para follows, likes y menciones via SignalR
 - **Docker** — `docker compose up -d --build` levanta todo el stack (Postgres + API + web)
+
+---
+
+## Por qué este stack
+
+### .NET 10 + ASP.NET Core
+
+Es el stack que uso profesionalmente a diario. Elegirlo no fue conveniencia sino una decisión deliberada: en un challenge donde el proceso y la calidad de código pesan tanto como el resultado, no quize realizarlo en un lenguaje o framework desconocido que me cueste verificarlo. Con .NET pude focalizarme en diseñar bien sin pelearme con la sintaxis.
+
+Concretamente para este proyecto:
+- **Minimal APIs** permitieron endpoints declarativos sin el boilerplate de controllers, manteniendo cada handler en menos de 20 líneas.
+- **EF Core 10 + Npgsql** cubre el grafo de follows (tabla `Follows` con PK compuesta) y el timeline (query con `IN + UNION ALL`) con LINQ legible y migraciones versionadas.
+- **BCrypt nativo** para passwords y JWT issuance desde `System.IdentityModel.Tokens.Jwt` sin depender de proveedores de identidad externos.
+- **`TreatWarningsAsErrors`** en el `.csproj` convierte warnings de compilador en errores, haciendo imposible commitear código con nullability o casting implícito.
+- **xUnit + FluentAssertions + Testcontainers** son el estándar del ecosistema para testing serio: 80 tests, cobertura ≥85%, con Postgres real en los integration tests (no mocks de DB que ocultan bugs de SQL).
+
+### Vue 3 + TypeScript + Pinia
+
+Tuve experiencia previa con Vue.
+- Vue's **Composition API** encaja bien para este dominio: cada feature tiene su composable aislado (`useMentionAutocomplete`, stores de Pinia) que se puede testear independientemente del componente que lo usa.
+- **Pinia** es más ergonómico que Redux/Zustand para este tamaño: el auth store, el tweet store y el notifications store son archivos de ~50 líneas sin reducers ni action creators.
+- El **interceptor de Axios** maneja el silent refresh en 401 en un solo lugar; todos los llamados a la API se benefician sin código adicional en cada componente.
+- **vue-tsc** corre el type-checker de TypeScript sobre los templates, no solo sobre el script, atrapando errores que Vite solo detectaría en runtime.
+
+### Clean Architecture
+
+La elegí por una razón práctica y directa: el challenge exige cobertura de tests ≥85%, y Clean Architecture es la estructura que hace ese umbral alcanzable de forma sostenible.
+
+Su separación de capas permite testear los use cases — crear tweet, follow, like, auth — de forma completamente aislada, sin levantar Postgres ni HTTP. Los 50 tests de `Application.Tests` corren con repos mockeados en milisegundos. Clean Architecture no sube el coverage por sí sola (los tests hay que escribirlos igual), pero elimina la principal razón por la que ese número es difícil de alcanzar: que testear lógica de negocio requiera infraestructura real. Con las interfaces definidas en Application y las implementaciones en Infrastructure, cada use case es una función pura desde el punto de vista del test.
+
+El beneficio adicional es que los límites entre capas son verificables automáticamente: `TwitterClone.Architecture.Tests` usa NetArchTest para confirmar que Domain no referencia ningún otro proyecto, que Application no toca Infrastructure, etc. No es una convención que alguien puede romper sin darse cuenta — es un test que falla en CI.
+
+### PostgreSQL
+
+Es la base de datos que uso en mi trabajo diario y con la que me siento más cómodo, lo que en un challenge de 72 horas tiene peso real.
+
+Además encaja bien con el problema: usuarios, tweets, follows y likes son datos que se relacionan entre sí de forma clara y estructurada, y PostgreSQL maneja eso de forma nativa. La tabla de follows tiene una clave primaria compuesta por `(FollowerId, FolloweeId)` — dos columnas que juntas identifican de forma única quién sigue a quién, sin necesidad de lógica extra en el código. El timeline es una consulta SQL directa que trae los tweets de los usuarios que seguís, ordenados por fecha. Por último, uso el mismo PostgreSQL tanto en producción como en los tests de integración, así lo que se prueba es exactamente lo que corre en producción.
 
 ---
 

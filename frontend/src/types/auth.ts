@@ -7,6 +7,7 @@ export interface AuthResult {
 export interface UserProfile {
   id: string
   username: string
+  avatarUrl?: string | null
 }
 
 export interface LoginRequest {

@@ -96,11 +96,14 @@
     </div>
 
     <!-- User card -->
-    <div>
-      <!-- lg: full card with name + logout button -->
-      <div class="hidden lg:flex items-center gap-3 p-3 rounded-full hover:bg-gray-100 cursor-pointer" @click="auth.logout()">
+    <div class="relative" ref="userCardContainer">
+      <!-- lg: full card with name + ··· menu -->
+      <div
+        class="hidden lg:flex items-center gap-3 p-3 rounded-full hover:bg-gray-100 cursor-pointer"
+        @click="router.push(`/profile/${auth.user?.username}`)"
+      >
         <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-          <img v-if="profile?.avatarUrl" :src="profile.avatarUrl" class="w-full h-full object-cover" alt="avatar" />
+          <img v-if="auth.user?.avatarUrl" :src="auth.user.avatarUrl" class="w-full h-full object-cover" alt="avatar" />
           <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-400">
             <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
           </svg>
@@ -109,16 +112,32 @@
           <span class="text-sm font-semibold truncate">{{ profile?.username ?? auth.user?.username }}</span>
           <span class="text-xs text-gray-400 truncate">@{{ auth.user?.username }}</span>
         </div>
-        <button class="ml-auto text-gray-400 hover:text-gray-700 font-bold px-1" @click.stop="auth.logout()">···</button>
+        <button
+          class="ml-auto text-gray-400 hover:text-gray-700 font-bold px-1"
+          @click.stop="menuOpen = !menuOpen"
+        >···</button>
       </div>
 
-      <!-- sm: icon-only avatar -->
+      <!-- logout dropdown (lg) -->
+      <div
+        v-if="menuOpen"
+        class="hidden lg:block absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden z-50"
+      >
+        <button
+          class="w-full text-left px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50 transition"
+          @click="menuOpen = false; auth.logout()"
+        >
+          Cerrar sesión @{{ auth.user?.username }}
+        </button>
+      </div>
+
+      <!-- sm: icon-only avatar → navigate to profile -->
       <button
         class="flex lg:hidden w-10 h-10 rounded-full bg-gray-200 items-center justify-center overflow-hidden mx-auto hover:opacity-80 transition"
-        @click="auth.logout()"
-        title="Sign out"
+        @click="router.push(`/profile/${auth.user?.username}`)"
+        title="Mi perfil"
       >
-        <img v-if="profile?.avatarUrl" :src="profile.avatarUrl" class="w-full h-full object-cover" alt="avatar" />
+        <img v-if="auth.user?.avatarUrl" :src="auth.user.avatarUrl" class="w-full h-full object-cover" alt="avatar" />
         <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-400">
           <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
         </svg>
@@ -129,7 +148,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useNotificationsStore } from '@/stores/useNotificationsStore'
 import { socialApi } from '@/api/social'
@@ -138,8 +157,12 @@ import type { Profile } from '@/types/profile'
 
 const auth = useAuthStore()
 const route = useRoute()
+const router = useRouter()
 const notifs = useNotificationsStore()
 const profile = ref<Profile | null>(null)
+
+const menuOpen = ref(false)
+const userCardContainer = ref<HTMLElement | null>(null)
 
 const searchQuery = ref('')
 const searchResults = ref<UserSearchResult[]>([])
@@ -171,6 +194,9 @@ function onClickOutside(e: MouseEvent) {
   if (searchContainer.value && !searchContainer.value.contains(e.target as Node)) {
     closeSearch()
   }
+  if (userCardContainer.value && !userCardContainer.value.contains(e.target as Node)) {
+    menuOpen.value = false
+  }
 }
 
 onMounted(async () => {
@@ -178,6 +204,7 @@ onMounted(async () => {
   if (auth.user?.username) {
     try {
       profile.value = await socialApi.getProfile(auth.user.username)
+      if (auth.user && profile.value?.avatarUrl) auth.user.avatarUrl = profile.value.avatarUrl
     } catch {
       // silently ignore — avatar/name will fall back to username
     }
