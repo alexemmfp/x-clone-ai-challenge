@@ -14,14 +14,14 @@
         :class="{ 'opacity-60': n.read }"
       >
         <span class="text-xl flex-shrink-0">
-          {{ n.type === 'follow' ? '👤' : n.type === 'mention' ? '💬' : '🔁' }}
+          {{ n.type === 'follow' ? '👤' : n.type === 'mention' ? '💬' : n.type === 'retweet' ? '🔁' : n.type === 'like' ? '❤️' : '💬' }}
         </span>
         <div class="min-w-0 flex-1">
           <RouterLink :to="`/profile/${n.actorUsername}`" class="font-semibold text-sky-600 hover:underline text-sm">
             @{{ n.actorUsername }}
           </RouterLink>
           <span class="text-sm text-gray-700">
-            {{ n.type === 'follow' ? ' followed you' : n.type === 'mention' ? ' mentioned you' : ' retweeted your tweet' }}
+            {{ n.type === 'follow' ? ' followed you' : n.type === 'mention' ? ' mentioned you' : n.type === 'retweet' ? ' retweeted your tweet' : n.type === 'like' ? ' liked your tweet' : ' replied to your tweet' }}
           </span>
           <p v-if="n.tweetText" class="text-xs text-gray-400 truncate mt-0.5">{{ n.tweetText }}</p>
           <RouterLink v-if="n.tweetId" :to="`/tweet/${n.tweetId}`" class="text-xs text-sky-500 hover:underline mt-1 block">

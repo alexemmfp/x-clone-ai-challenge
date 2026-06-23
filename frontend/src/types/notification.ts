@@ -1,4 +1,4 @@
-export type NotificationType = 'follow' | 'mention' | 'retweet'
+export type NotificationType = 'follow' | 'mention' | 'retweet' | 'like' | 'reply'
 
 export interface AppNotification {
   id: string

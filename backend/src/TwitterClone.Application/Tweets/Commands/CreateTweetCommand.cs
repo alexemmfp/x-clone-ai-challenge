@@ -30,6 +30,15 @@ public sealed class CreateTweetHandler(
         await tweets.AddAsync(tweet, ct);
         await uow.SaveChangesAsync(ct);
 
+        if (cmd.ParentId is not null)
+        {
+            var parentTweet = await tweets.GetByIdAsync(cmd.ParentId.Value, ct);
+            if (parentTweet is not null && parentTweet.AuthorId != cmd.AuthorId)
+            {
+                await notifier.NotifyRepliedAsync(parentTweet.AuthorId, parentTweet.Id, author.Username, cmd.Text, ct);
+            }
+        }
+
         var mentionMatches = System.Text.RegularExpressions.Regex.Matches(cmd.Text, @"@(\w+)");
         var mentioned = mentionMatches.Select(m => m.Groups[1].Value).Distinct().ToList();
         if (mentioned.Count > 0)

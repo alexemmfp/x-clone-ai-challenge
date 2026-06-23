@@ -39,6 +39,18 @@ export function useTimelineHub(onTweetCreated: (tweet: Tweet) => void) {
       tweetId: data.tweetId, createdAt: new Date().toISOString(), read: false })
   })
 
+  connection.on('LikeNotification', (data: { tweetId: string; likerUsername: string }) => {
+    notifs.add({ id: crypto.randomUUID(), type: 'like',
+      actorUsername: data.likerUsername, actorDisplayName: null, actorAvatarUrl: null,
+      tweetId: data.tweetId, createdAt: new Date().toISOString(), read: false })
+  })
+
+  connection.on('ReplyNotification', (data: { tweetId: string; replierUsername: string; replyText: string }) => {
+    notifs.add({ id: crypto.randomUUID(), type: 'reply',
+      actorUsername: data.replierUsername, actorDisplayName: null, actorAvatarUrl: null,
+      tweetId: data.tweetId, tweetText: data.replyText, createdAt: new Date().toISOString(), read: false })
+  })
+
   watch(() => auth.isAuthenticated, async (isAuth) => {
     if (isAuth && connection.state === HubConnectionState.Disconnected) {
       try { await connection.start() } catch { /* hub optional */ }

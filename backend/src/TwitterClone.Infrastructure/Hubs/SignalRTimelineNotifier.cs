@@ -20,4 +20,12 @@ internal sealed class SignalRTimelineNotifier(IHubContext<TimelineHub> hub) : IT
     public Task NotifyRetweetedAsync(Guid targetUserId, Guid tweetId, string retweeterUsername, CancellationToken ct = default) =>
         hub.Clients.Group($"user-{targetUserId}").SendAsync("RetweetNotification",
             new { tweetId, retweeterUsername }, ct);
+
+    public Task NotifyLikedAsync(Guid targetUserId, Guid tweetId, string likerUsername, CancellationToken ct = default) =>
+        hub.Clients.Group($"user-{targetUserId}").SendAsync("LikeNotification",
+            new { tweetId, likerUsername }, ct);
+
+    public Task NotifyRepliedAsync(Guid targetUserId, Guid tweetId, string replierUsername, string replyText, CancellationToken ct = default) =>
+        hub.Clients.Group($"user-{targetUserId}").SendAsync("ReplyNotification",
+            new { tweetId, replierUsername, replyText }, ct);
 }

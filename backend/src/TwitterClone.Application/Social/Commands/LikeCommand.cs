@@ -9,6 +9,8 @@ public sealed record LikeCommand(Guid UserId, Guid TweetId);
 public sealed class LikeHandler(
     ILikeRepository likes,
     ITweetRepository tweets,
+    IUserRepository users,
+    ITimelineNotifier notifier,
     IUnitOfWork uow)
 {
     public async Task HandleAsync(LikeCommand cmd, CancellationToken ct = default)
@@ -25,6 +27,11 @@ public sealed class LikeHandler(
         await likes.AddAsync(Like.Create(cmd.UserId, cmd.TweetId), ct);
         await uow.SaveChangesAsync(ct);
 
-        _ = tweet;
+        if (tweet.AuthorId != cmd.UserId)
+        {
+            var liker = await users.GetByIdAsync(cmd.UserId, ct);
+            if (liker is not null)
+                await notifier.NotifyLikedAsync(tweet.AuthorId, tweet.Id, liker.Username, ct);
+        }
     }
 }
