@@ -24,7 +24,7 @@ public class GetTimelineHandlerTests
         var tweet = Tweet.Create(_author.Id, "hello world");
         _tweets.GetTimelineAsync(viewerId, 1, Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns(new List<Tweet> { tweet });
-        _retweets.GetTimelineRetweetsAsync(viewerId, Arg.Any<int>(), Arg.Any<CancellationToken>())
+        _retweets.GetTimelineRetweetsAsync(viewerId, 1, Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns(new List<(Tweet, string, DateTime)>());
         _users.GetByIdAsync(_author.Id, Arg.Any<CancellationToken>()).Returns(_author);
         _likes.CountAsync(tweet.Id, Arg.Any<CancellationToken>()).Returns(2);
@@ -39,11 +39,26 @@ public class GetTimelineHandlerTests
     }
 
     [Fact]
+    public async Task HandleAsync_PageTwo_PassesPageToRepository()
+    {
+        var viewerId = Guid.NewGuid();
+        _tweets.GetTimelineAsync(viewerId, 2, Arg.Any<int>(), Arg.Any<CancellationToken>())
+            .Returns(new List<Tweet>());
+        _retweets.GetTimelineRetweetsAsync(viewerId, 2, Arg.Any<int>(), Arg.Any<CancellationToken>())
+            .Returns(new List<(Tweet, string, DateTime)>());
+
+        await CreateHandler().HandleAsync(new GetTimelineQuery(viewerId, Page: 2));
+
+        await _tweets.Received(1).GetTimelineAsync(viewerId, 2, Arg.Any<int>(), Arg.Any<CancellationToken>());
+        await _retweets.Received(1).GetTimelineRetweetsAsync(viewerId, 2, Arg.Any<int>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task HandleAsync_EmptyTimeline_ReturnsEmpty()
     {
         _tweets.GetTimelineAsync(Arg.Any<Guid>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns(new List<Tweet>());
-        _retweets.GetTimelineRetweetsAsync(Arg.Any<Guid>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
+        _retweets.GetTimelineRetweetsAsync(Arg.Any<Guid>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns(new List<(Tweet, string, DateTime)>());
 
         var result = await CreateHandler().HandleAsync(new GetTimelineQuery(Guid.NewGuid()));

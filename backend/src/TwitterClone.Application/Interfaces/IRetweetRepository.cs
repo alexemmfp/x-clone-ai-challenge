@@ -9,5 +9,5 @@ public interface IRetweetRepository
     Task RemoveAsync(Guid retweeterId, Guid tweetId, CancellationToken ct = default);
     Task<int> CountAsync(Guid tweetId, CancellationToken ct = default);
     Task<IReadOnlyList<(Tweet Tweet, string RetweeterUsername, DateTime RetweetedAt)>>
-        GetTimelineRetweetsAsync(Guid viewerId, int count, CancellationToken ct = default);
+        GetTimelineRetweetsAsync(Guid viewerId, int page, int count, CancellationToken ct = default);
 }

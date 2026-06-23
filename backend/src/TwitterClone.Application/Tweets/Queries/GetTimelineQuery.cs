@@ -15,8 +15,8 @@ public sealed class GetTimelineHandler(
     {
         var fetchCount = query.PageSize * 2;
 
-        var tweetEntities = await tweets.GetTimelineAsync(query.UserId, 1, fetchCount, ct);
-        var retweetEntries = await retweets.GetTimelineRetweetsAsync(query.UserId, fetchCount, ct);
+        var tweetEntities = await tweets.GetTimelineAsync(query.UserId, query.Page, fetchCount, ct);
+        var retweetEntries = await retweets.GetTimelineRetweetsAsync(query.UserId, query.Page, fetchCount, ct);
 
         var authorIds = tweetEntities.Select(t => t.AuthorId)
             .Concat(retweetEntries.Select(r => r.Tweet.AuthorId))

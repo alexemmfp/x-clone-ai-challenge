@@ -23,7 +23,7 @@ internal sealed class RetweetRepository(AppDbContext db) : IRetweetRepository
         db.Retweets.CountAsync(r => r.TweetId == tweetId, ct);
 
     public async Task<IReadOnlyList<(Tweet Tweet, string RetweeterUsername, DateTime RetweetedAt)>>
-        GetTimelineRetweetsAsync(Guid viewerId, int count, CancellationToken ct = default)
+        GetTimelineRetweetsAsync(Guid viewerId, int page, int count, CancellationToken ct = default)
     {
         var followedIds = await db.Follows
             .Where(f => f.FollowerId == viewerId)
@@ -35,6 +35,7 @@ internal sealed class RetweetRepository(AppDbContext db) : IRetweetRepository
         var rows = await db.Retweets
             .Where(r => followedIds.Contains(r.RetweeterId))
             .OrderByDescending(r => r.CreatedAt)
+            .Skip((page - 1) * count)
             .Take(count)
             .Join(db.Tweets, r => r.TweetId, t => t.Id, (r, t) => new { r, t })
             .Join(db.Users, x => x.r.RetweeterId, u => u.Id,
