@@ -22,7 +22,7 @@ Clon funcional de Twitter/X. Backend .NET 10 Clean Architecture + Frontend Vue 3
 > Requiere Docker Engine (Linux/macOS) o Docker Desktop (Windows/macOS) con el plugin `docker compose` v2. Levanta Postgres + API + frontend juntos.
 
 ```bash
-git clone <repo-url> twitter_clone
+git clone https://github.com/alexemmfp/x-clone-ai-challenge.git twitter_clone
 cd twitter_clone
 docker compose up -d --build
 ```
@@ -42,7 +42,7 @@ Todos los comandos son copy-pasteable. Ejecutar desde la raíz del repo salvo in
 ### 1 — Clonar
 
 ```bash
-git clone <repo-url> twitter_clone
+git clone https://github.com/alexemmfp/x-clone-ai-challenge.git twitter_clone
 cd twitter_clone
 ```
 
@@ -312,6 +312,7 @@ Los retweets se almacenan como filas separadas en `Retweets { RetweeterId, Tweet
 
 - Modelo pull (query en lectura) en lugar de fan-out en escritura. Simple y correcto a esta escala; no escala a millones de followers sin caché o un servicio de feed dedicado.
 - Sin índice full-text — la búsqueda de usuarios usa `ILIKE '%term%'` que requiere sequential scan. Aceptable para demo; en producción se usaría `pg_trgm` o un motor de búsqueda dedicado.
+- Paginación con botón "Load more" en lugar de infinite scroll automático (IntersectionObserver). Funcional y correcto; el scroll automático se omitió para mantener el foco en features de mayor peso.
 
 ---
 
