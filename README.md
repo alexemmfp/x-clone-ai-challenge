@@ -139,7 +139,8 @@ El seed genera automáticamente tweets (con y sin imágenes), follows cruzados y
 | `VITE_API_BASE_URL` | URL base de la API (solo frontend) | `http://localhost:8080` |
 
 > **`.env` es opcional.** El `docker-compose.yml` tiene defaults para todas las variables — el stack levanta sin ningún archivo `.env`. Copiar `.env.example` a `.env` solo si se quieren sobreescribir valores (por ejemplo, `Jwt__SigningKey` en producción).  
-> **Dev local:** el backend usa `appsettings.Development.json` (ya commiteado). Solo crear `frontend/.env.development` con `VITE_API_BASE_URL=http://localhost:5089`.
+> **Dev local:** el backend usa `appsettings.Development.json` (ya commiteado). Solo crear `frontend/.env.development` con `VITE_API_BASE_URL=http://localhost:5089`.  
+> **⚠️ Producción:** los valores en `appsettings.Development.json` son placeholders de desarrollo. En producción **siempre** sobreescribir `Jwt__SigningKey` y `ConnectionStrings__Default` con secretos reales vía variables de entorno o un secret manager — nunca usar los valores del repo.
 
 ---
 
