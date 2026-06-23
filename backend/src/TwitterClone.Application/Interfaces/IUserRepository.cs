@@ -12,4 +12,6 @@ public interface IUserRepository
     Task AddAsync(User user, CancellationToken ct = default);
     Task<IReadOnlyList<User>> SearchAsync(string term, int limit, CancellationToken ct = default);
     Task<IReadOnlySet<string>> GetExistingUsernamesAsync(IEnumerable<string> usernames, CancellationToken ct = default);
+    Task<IReadOnlyDictionary<Guid, User>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default);
+    Task<IReadOnlyDictionary<string, User>> GetByUsernamesAsync(IEnumerable<string> usernames, CancellationToken ct = default);
 }

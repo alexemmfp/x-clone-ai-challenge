@@ -46,10 +46,10 @@ public sealed class CreateTweetHandler(
         if (mentioned.Count > 0)
         {
             var existing = await users.GetExistingUsernamesAsync(mentioned, ct);
-            foreach (var uname in existing)
+            var mentionedUsers = await users.GetByUsernamesAsync(existing, ct);
+            foreach (var (_, u) in mentionedUsers)
             {
-                var u = await users.GetByUsernameAsync(uname, ct);
-                if (u is not null && u.Id != cmd.AuthorId && u.Id != replyNotifiedUserId)
+                if (u.Id != cmd.AuthorId && u.Id != replyNotifiedUserId)
                 {
                     await notifier.NotifyMentionedAsync(u.Id, tweet.Id, author.Username, cmd.Text, ct);
                 }

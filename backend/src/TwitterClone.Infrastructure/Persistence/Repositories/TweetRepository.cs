@@ -44,4 +44,21 @@ internal sealed class TweetRepository(AppDbContext db) : ITweetRepository
 
     public Task<int> GetReplyCountAsync(Guid tweetId, CancellationToken ct = default) =>
         db.Tweets.CountAsync(t => t.ParentId == tweetId, ct);
+
+    public async Task<IReadOnlyDictionary<Guid, int>> GetReplyCountsAsync(
+        IEnumerable<Guid> tweetIds, CancellationToken ct = default)
+    {
+        var list = tweetIds.ToList();
+        var counts = await db.Tweets
+            .Where(t => t.ParentId != null && list.Contains(t.ParentId.Value))
+            .GroupBy(t => t.ParentId!.Value)
+            .Select(g => new { TweetId = g.Key, Count = g.Count() })
+            .ToListAsync(ct);
+        var dict = counts.ToDictionary(x => x.TweetId, x => x.Count);
+        foreach (var id in list.Where(id => !dict.ContainsKey(id)))
+        {
+            dict[id] = 0;
+        }
+        return dict;
+    }
 }

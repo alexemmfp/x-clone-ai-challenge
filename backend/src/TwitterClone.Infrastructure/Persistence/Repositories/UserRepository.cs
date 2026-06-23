@@ -49,4 +49,20 @@ internal sealed class UserRepository(AppDbContext db) : IUserRepository
             .ToListAsync(ct);
         return new HashSet<string>(found, StringComparer.OrdinalIgnoreCase);
     }
+
+    public async Task<IReadOnlyDictionary<Guid, User>> GetByIdsAsync(
+        IEnumerable<Guid> ids, CancellationToken ct = default)
+    {
+        var list = ids.ToList();
+        var users = await db.Users.Where(u => list.Contains(u.Id)).ToListAsync(ct);
+        return users.ToDictionary(u => u.Id);
+    }
+
+    public async Task<IReadOnlyDictionary<string, User>> GetByUsernamesAsync(
+        IEnumerable<string> usernames, CancellationToken ct = default)
+    {
+        var list = usernames.ToList();
+        var users = await db.Users.Where(u => list.Contains(u.Username)).ToListAsync(ct);
+        return users.ToDictionary(u => u.Username, StringComparer.OrdinalIgnoreCase);
+    }
 }

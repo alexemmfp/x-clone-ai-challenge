@@ -10,4 +10,5 @@ public interface ITweetRepository
     Task<IReadOnlyList<Tweet>> GetTimelineAsync(Guid userId, int page, int pageSize, CancellationToken ct = default);
     Task<IReadOnlyList<Tweet>> GetRepliesAsync(Guid parentId, CancellationToken ct = default);
     Task<int> GetReplyCountAsync(Guid tweetId, CancellationToken ct = default);
+    Task<IReadOnlyDictionary<Guid, int>> GetReplyCountsAsync(IEnumerable<Guid> tweetIds, CancellationToken ct = default);
 }

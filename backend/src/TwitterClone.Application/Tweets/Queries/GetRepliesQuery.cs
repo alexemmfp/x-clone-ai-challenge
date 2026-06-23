@@ -10,39 +10,33 @@ public sealed class GetRepliesHandler(ITweetRepository tweets, IUserRepository u
     public async Task<IReadOnlyList<TweetDto>> HandleAsync(GetRepliesQuery query, CancellationToken ct = default)
     {
         var replies = await tweets.GetRepliesAsync(query.ParentId, ct);
+        if (replies.Count == 0) { return []; }
 
+        var tweetIds = replies.Select(t => t.Id).ToList();
         var authorIds = replies.Select(t => t.AuthorId).Distinct().ToList();
-        var authorMap = new Dictionary<Guid, (string Username, string? DisplayName, string? AvatarUrl)>();
-        foreach (var id in authorIds)
-        {
-            var user = await users.GetByIdAsync(id, ct);
-            if (user is not null)
-            {
-                authorMap[id] = (user.Username, user.DisplayName, user.AvatarUrl);
-            }
-        }
 
-        var result = new List<TweetDto>();
+        var authorMap = await users.GetByIdsAsync(authorIds, ct);
+        var likeCounts = await likes.CountForTweetsAsync(tweetIds, ct);
+        var likedByViewer = await likes.GetLikedByUserAsync(query.ViewerId, tweetIds, ct);
+        var replyCounts = await tweets.GetReplyCountsAsync(tweetIds, ct);
+
+        var result = new List<TweetDto>(replies.Count);
         foreach (var t in replies)
         {
-            var likeCount = await likes.CountAsync(t.Id, ct);
-            var likedByViewer = await likes.GetAsync(query.ViewerId, t.Id, ct) is not null;
-            var replyCount = await tweets.GetReplyCountAsync(t.Id, ct);
-            var (username, displayName, avatarUrl) = authorMap.TryGetValue(t.AuthorId, out var info)
-                ? info : ("unknown", null, null);
+            var author = authorMap.TryGetValue(t.AuthorId, out var a) ? a : null;
             result.Add(new TweetDto(
                 t.Id,
                 t.AuthorId,
-                username,
+                author?.Username ?? "unknown",
                 t.Text,
                 t.ParentId,
                 t.ImageUrl,
                 t.CreatedAt,
-                likeCount,
-                likedByViewer,
-                replyCount,
-                AuthorDisplayName: displayName,
-                AuthorAvatarUrl: avatarUrl));
+                likeCounts.GetValueOrDefault(t.Id),
+                likedByViewer.Contains(t.Id),
+                replyCounts.GetValueOrDefault(t.Id),
+                AuthorDisplayName: author?.DisplayName,
+                AuthorAvatarUrl: author?.AvatarUrl));
         }
 
         return result;

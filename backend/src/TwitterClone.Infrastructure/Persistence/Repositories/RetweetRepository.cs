@@ -22,6 +22,34 @@ internal sealed class RetweetRepository(AppDbContext db) : IRetweetRepository
     public Task<int> CountAsync(Guid tweetId, CancellationToken ct = default) =>
         db.Retweets.CountAsync(r => r.TweetId == tweetId, ct);
 
+    public async Task<IReadOnlyDictionary<Guid, int>> CountForTweetsAsync(
+        IEnumerable<Guid> tweetIds, CancellationToken ct = default)
+    {
+        var list = tweetIds.ToList();
+        var counts = await db.Retweets
+            .Where(r => list.Contains(r.TweetId))
+            .GroupBy(r => r.TweetId)
+            .Select(g => new { TweetId = g.Key, Count = g.Count() })
+            .ToListAsync(ct);
+        var dict = counts.ToDictionary(x => x.TweetId, x => x.Count);
+        foreach (var id in list.Where(id => !dict.ContainsKey(id)))
+        {
+            dict[id] = 0;
+        }
+        return dict;
+    }
+
+    public async Task<IReadOnlySet<Guid>> GetRetweetedByUserAsync(
+        Guid userId, IEnumerable<Guid> tweetIds, CancellationToken ct = default)
+    {
+        var list = tweetIds.ToList();
+        var retweeted = await db.Retweets
+            .Where(r => r.RetweeterId == userId && list.Contains(r.TweetId))
+            .Select(r => r.TweetId)
+            .ToListAsync(ct);
+        return new HashSet<Guid>(retweeted);
+    }
+
     public async Task<IReadOnlyList<(Tweet Tweet, string RetweeterUsername, DateTime RetweetedAt)>>
         GetTimelineRetweetsAsync(Guid viewerId, int page, int count, CancellationToken ct = default)
     {

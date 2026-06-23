@@ -23,9 +23,14 @@ public class GetRepliesHandlerTests
         var reply = Tweet.Create(_author.Id, "A reply", parentId);
 
         _tweets.GetRepliesAsync(parentId).Returns([reply]);
-        _users.GetByIdAsync(_author.Id).Returns(_author);
-        _likes.CountAsync(reply.Id).Returns(0);
-        _likes.GetAsync(Arg.Any<Guid>(), reply.Id).Returns((Like?)null);
+        _users.GetByIdsAsync(Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<Guid, User> { [_author.Id] = _author });
+        _likes.CountForTweetsAsync(Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<Guid, int> { [reply.Id] = 0 });
+        _likes.GetLikedByUserAsync(Arg.Any<Guid>(), Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new HashSet<Guid>());
+        _tweets.GetReplyCountsAsync(Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<Guid, int>());
 
         var handler = CreateHandler();
         var result = await handler.HandleAsync(new GetRepliesQuery(Guid.NewGuid(), parentId));

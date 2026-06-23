@@ -17,6 +17,22 @@ public class GetTimelineHandlerTests
 
     private GetTimelineHandler CreateHandler() => new(_tweets, _users, _likes, _retweets);
 
+    private void SetupEmptyBatchDefaults()
+    {
+        _users.GetByIdsAsync(Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<Guid, User>());
+        _likes.CountForTweetsAsync(Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<Guid, int>());
+        _likes.GetLikedByUserAsync(Arg.Any<Guid>(), Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new HashSet<Guid>());
+        _retweets.CountForTweetsAsync(Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<Guid, int>());
+        _retweets.GetRetweetedByUserAsync(Arg.Any<Guid>(), Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new HashSet<Guid>());
+        _tweets.GetReplyCountsAsync(Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<Guid, int>());
+    }
+
     [Fact]
     public async Task HandleAsync_WithTweets_ReturnsDtos()
     {
@@ -26,9 +42,19 @@ public class GetTimelineHandlerTests
             .Returns(new List<Tweet> { tweet });
         _retweets.GetTimelineRetweetsAsync(viewerId, 1, Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns(new List<(Tweet, string, DateTime)>());
-        _users.GetByIdAsync(_author.Id, Arg.Any<CancellationToken>()).Returns(_author);
-        _likes.CountAsync(tweet.Id, Arg.Any<CancellationToken>()).Returns(2);
-        _likes.GetAsync(viewerId, tweet.Id, Arg.Any<CancellationToken>()).Returns((Like?)null);
+
+        _users.GetByIdsAsync(Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<Guid, User> { [_author.Id] = _author });
+        _likes.CountForTweetsAsync(Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<Guid, int> { [tweet.Id] = 2 });
+        _likes.GetLikedByUserAsync(Arg.Any<Guid>(), Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new HashSet<Guid>());
+        _retweets.CountForTweetsAsync(Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<Guid, int>());
+        _retweets.GetRetweetedByUserAsync(Arg.Any<Guid>(), Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new HashSet<Guid>());
+        _tweets.GetReplyCountsAsync(Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<Guid, int>());
 
         var result = await CreateHandler().HandleAsync(new GetTimelineQuery(viewerId));
 
@@ -46,6 +72,7 @@ public class GetTimelineHandlerTests
             .Returns(new List<Tweet>());
         _retweets.GetTimelineRetweetsAsync(viewerId, 2, Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns(new List<(Tweet, string, DateTime)>());
+        SetupEmptyBatchDefaults();
 
         await CreateHandler().HandleAsync(new GetTimelineQuery(viewerId, Page: 2));
 
@@ -60,6 +87,7 @@ public class GetTimelineHandlerTests
             .Returns(new List<Tweet>());
         _retweets.GetTimelineRetweetsAsync(Arg.Any<Guid>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns(new List<(Tweet, string, DateTime)>());
+        SetupEmptyBatchDefaults();
 
         var result = await CreateHandler().HandleAsync(new GetTimelineQuery(Guid.NewGuid()));
 
