@@ -55,21 +55,9 @@ docker compose up -d postgres
 Postgres escucha en **localhost:5433** (puerto host) → 5432 dentro del container.
 Credenciales por defecto: usuario `twitter`, password `change-me-local-dev`, base `twitterclone`.
 
-### 3 — Correr migraciones
+### 3 — Levantar el backend
 
-```powershell
-# PowerShell
-dotnet ef database update --project backend/src/TwitterClone.Infrastructure --startup-project backend/src/TwitterClone.Api
-```
-
-```bash
-# bash/macOS/Linux
-dotnet ef database update --project backend/src/TwitterClone.Infrastructure --startup-project backend/src/TwitterClone.Api
-```
-
-> `appsettings.Development.json` ya está commiteado con el connection string correcto (puerto 5433). No se necesita archivo `.env` para el backend en desarrollo.
-
-### 4 — Levantar el backend
+> Las migraciones y el seed corren automáticamente al iniciar. No se necesita `dotnet ef database update`. `appsettings.Development.json` ya está commiteado con el connection string correcto (puerto 5433).
 
 ```powershell
 # PowerShell
