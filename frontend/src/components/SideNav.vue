@@ -13,6 +13,59 @@
         <span class="hidden lg:block text-sm">Home</span>
       </RouterLink>
 
+      <!-- Search -->
+      <div class="relative my-2" ref="searchContainer">
+        <!-- lg: full search input -->
+        <div class="hidden lg:flex items-center gap-2 bg-gray-100 rounded-full px-3 py-2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-gray-400 flex-shrink-0">
+            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search users"
+            class="bg-transparent text-sm outline-none w-full text-gray-700 placeholder-gray-400"
+            @focus="searchOpen = true"
+            @keydown.escape="closeSearch"
+          />
+        </div>
+
+        <!-- sm: icon-only search button -->
+        <button
+          class="flex lg:hidden w-12 h-12 rounded-full hover:bg-gray-100 items-center justify-center mx-auto transition text-gray-700"
+          @click="searchOpen = !searchOpen"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+        </button>
+
+        <!-- Results dropdown -->
+        <div
+          v-if="searchOpen && searchResults.length > 0"
+          class="absolute left-0 right-0 bg-white border border-gray-200 rounded-2xl shadow-lg mt-1 overflow-hidden z-50"
+        >
+          <RouterLink
+            v-for="u in searchResults"
+            :key="u.id"
+            :to="`/profile/${u.username}`"
+            class="flex items-center gap-2 px-3 py-2 hover:bg-sky-50 transition"
+            @click="closeSearch"
+          >
+            <img v-if="u.avatarUrl" :src="u.avatarUrl" class="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="avatar" />
+            <span v-else class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-gray-400">
+                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+              </svg>
+            </span>
+            <div class="min-w-0">
+              <div class="text-sm font-medium truncate text-gray-900">{{ u.displayName ?? u.username }}</div>
+              <div class="text-xs text-gray-400 truncate">@{{ u.username }}</div>
+            </div>
+          </RouterLink>
+        </div>
+      </div>
+
       <RouterLink
         to="/notifications"
         class="flex items-center gap-3 rounded-full p-3 hover:bg-gray-100 transition"
@@ -41,59 +94,6 @@
         <span class="hidden lg:block text-sm">Profile</span>
       </RouterLink>
     </nav>
-
-    <!-- Search -->
-    <div class="relative my-2" ref="searchContainer">
-      <!-- lg: full search input -->
-      <div class="hidden lg:flex items-center gap-2 bg-gray-100 rounded-full px-3 py-2">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-gray-400 flex-shrink-0">
-          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-        </svg>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search users"
-          class="bg-transparent text-sm outline-none w-full text-gray-700 placeholder-gray-400"
-          @focus="searchOpen = true"
-          @keydown.escape="closeSearch"
-        />
-      </div>
-
-      <!-- sm: icon-only search button -->
-      <button
-        class="flex lg:hidden w-12 h-12 rounded-full hover:bg-gray-100 items-center justify-center mx-auto transition text-gray-700"
-        @click="searchOpen = !searchOpen"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-        </svg>
-      </button>
-
-      <!-- Results dropdown -->
-      <div
-        v-if="searchOpen && searchResults.length > 0"
-        class="absolute left-0 right-0 bg-white border border-gray-200 rounded-2xl shadow-lg mt-1 overflow-hidden z-50"
-      >
-        <RouterLink
-          v-for="u in searchResults"
-          :key="u.id"
-          :to="`/profile/${u.username}`"
-          class="flex items-center gap-2 px-3 py-2 hover:bg-sky-50 transition"
-          @click="closeSearch"
-        >
-          <img v-if="u.avatarUrl" :src="u.avatarUrl" class="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="avatar" />
-          <span v-else class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-gray-400">
-              <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
-            </svg>
-          </span>
-          <div class="min-w-0">
-            <div class="text-sm font-medium truncate text-gray-900">{{ u.displayName ?? u.username }}</div>
-            <div class="text-xs text-gray-400 truncate">@{{ u.username }}</div>
-          </div>
-        </RouterLink>
-      </div>
-    </div>
 
     <!-- User card -->
     <div class="relative" ref="userCardContainer">
