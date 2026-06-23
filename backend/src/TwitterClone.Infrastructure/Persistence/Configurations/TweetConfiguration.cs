@@ -28,7 +28,7 @@ internal sealed class TweetConfiguration : IEntityTypeConfiguration<Tweet>
         builder.HasOne<Tweet>()
             .WithMany()
             .HasForeignKey(t => t.ParentId)
-            .OnDelete(DeleteBehavior.Restrict)
+            .OnDelete(DeleteBehavior.Cascade)
             .IsRequired(false);
 
         builder.HasIndex(t => t.AuthorId);

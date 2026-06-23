@@ -108,7 +108,7 @@
             🔁 {{ tweet.retweetCount }}
           </button>
           <button
-            v-if="tweet.authorId === auth.user?.id"
+            v-if="tweet.authorId === auth.user?.id && !tweet.isRetweet"
             class="text-xs text-red-400 hover:text-red-600 transition ml-auto min-h-[44px]"
             @click="tweets.deleteTweet(tweet.id)"
           >
